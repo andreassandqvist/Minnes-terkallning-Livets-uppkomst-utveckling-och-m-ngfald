@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biologi åk 7 — Livets uppkomst, utveckling och mångfald</title>
+<style>
+:root {
+  --bg:#ffffff; --bg2:#f5f4f0; --bg3:#eeede8;
+  --text:#1a1a18; --text2:#6b6a65;
+  --border:rgba(0,0,0,0.12); --border2:rgba(0,0,0,0.22);
+  --r:10px; --rl:14px;
+  --xp:#1D9E75; --xpl:#E1F5EE; --xpd:#085041;
+  --wrong:#E24B4A; --wrongl:#FCEBEB;
+  --streak:#EF9F27; --streakl:#FAEEDA;
+  --bl:#E6F1FB; --bd:#0C447C;
+  --lvl:#534AB7; --lvll:#EEEDFE; --lvld:#26215C;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1c; --bg2:#2a2a27; --bg3:#323230;
+  --text:#f0efe8; --text2:#9a9990;
+  --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.20);
+  --xpl:#04342C; --xpd:#9FE1CB;
+  --wrongl:#501313; --streakl:#412402;
+  --bl:#042C53; --bd:#85B7EB;
+  --lvll:#26215C; --lvld:#CECBF6;
+}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem 4rem;}
+#game{background:var(--bg);border-radius:var(--rl);border:0.5px solid var(--border);max-width:620px;width:100%;padding:2rem 1.75rem;position:relative;overflow:hidden;}
+h1.logo{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1.5rem;letter-spacing:0.05em;text-transform:uppercase;}
+
+/* ── topbar ── */
+#level-row{display:flex;align-items:center;gap:10px;margin-bottom:0.6rem;}
+#level-badge{font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;background:var(--lvll);color:var(--lvld);white-space:nowrap;}
+#xp-bar-wrap{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;}
+#xp-bar{height:100%;background:var(--lvl);border-radius:4px;transition:width 0.5s cubic-bezier(.4,0,.2,1);}
+#xp-label{font-size:12px;color:var(--text2);white-space:nowrap;}
+#topbar{display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap;}
+.stat{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:500;padding:4px 10px;border-radius:999px;border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);}
+.stat span{font-size:14px;font-weight:500;color:var(--text);}
+#q-bar-wrap{flex:1;min-width:80px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+#q-bar{height:100%;background:var(--xp);border-radius:3px;transition:width 0.4s ease;}
+
+/* ── back button in game ── */
+#back-ingame{font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;padding:0 0 1rem 0;display:flex;align-items:center;gap:4px;font-family:inherit;}
+#back-ingame:hover{color:var(--text);}
+
+/* ── card ── */
+#card{background:var(--bg);border:0.5px solid var(--border2);border-radius:var(--rl);padding:1.5rem 1.5rem 1.25rem;min-height:120px;display:flex;flex-direction:column;gap:10px;margin-bottom:1.25rem;transition:background 0.2s,border-color 0.2s;}
+#card.shake{animation:shake 0.35s;}
+#card.correct-flash{background:var(--xpl);border-color:var(--xp);}
+#card.wrong-flash{background:var(--wrongl);border-color:var(--wrong);}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+#mode-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:999px;align-self:flex-start;}
+.badge-mc{background:var(--xpl);color:var(--xpd);}
+.badge-tf{background:var(--streakl);color:#7a4800;}
+.badge-fill{background:var(--bl);color:var(--bd);}
+@media(prefers-color-scheme:dark){.badge-tf{color:#d4900a;}}
+#question-text{font-size:17px;font-weight:500;color:var(--text);line-height:1.5;}
+#sub-text{font-size:14px;color:var(--text2);line-height:1.6;}
+
+/* ── options ── */
+#options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.opt-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:14px;color:var(--text);cursor:pointer;text-align:left;line-height:1.4;transition:background 0.1s,border-color 0.1s;font-family:inherit;min-height:44px;}
+.opt-btn:hover:not(:disabled){background:var(--bg3);border-color:var(--border2);}
+.opt-btn.correct{background:var(--xpl);border-color:var(--xp);color:var(--xpd);font-weight:500;}
+.opt-btn.wrong{background:var(--wrongl);border-color:var(--wrong);color:#7a1212;}
+.opt-btn:disabled{cursor:default;}
+@media(prefers-color-scheme:dark){.opt-btn.wrong{color:#fca5a5;}}
+
+/* ── fill ── */
+#fill-row{display:flex;gap:8px;margin-bottom:1rem;}
+#fill-input{flex:1;padding:9px 12px;font-size:15px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);outline:none;font-family:inherit;transition:border-color 0.15s;}
+#fill-input:focus{border-color:var(--xp);}
+#fill-submit{padding:9px 16px;font-size:14px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--r);cursor:pointer;color:var(--text);font-family:inherit;}
+#fill-submit:hover{background:var(--bg3);}
+
+/* ── tf ── */
+#tf-row{display:flex;gap:8px;margin-bottom:1rem;}
+.tf-btn{flex:1;padding:11px;font-size:15px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border);background:var(--bg2);cursor:pointer;color:var(--text);font-family:inherit;transition:background 0.1s;}
+.tf-btn:hover:not(:disabled){background:var(--bg3);}
+.tf-btn.correct{background:var(--xpl);border-color:var(--xp);color:var(--xpd);}
+.tf-btn.wrong{background:var(--wrongl);border-color:var(--wrong);color:#7a1212;}
+.tf-btn:disabled{cursor:default;}
+@media(prefers-color-scheme:dark){.tf-btn.wrong{color:#fca5a5;}}
+
+/* ── self-rating (after answer) ── */
+#self-rate{display:none;margin-bottom:1rem;}
+#self-rate p{font-size:13px;color:var(--text2);margin-bottom:8px;}
+#rate-row{display:flex;gap:8px;}
+.rate-btn{flex:1;padding:9px 8px;font-size:13px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border);cursor:pointer;font-family:inherit;transition:background 0.1s,transform 0.1s;}
+.rate-btn:hover{transform:translateY(-1px);}
+.rate-btn.r-hard{background:var(--wrongl);border-color:rgba(226,75,74,0.3);color:#7a1212;}
+.rate-btn.r-unsure{background:var(--streakl);border-color:rgba(239,159,39,0.3);color:#7a4800;}
+.rate-btn.r-easy{background:var(--xpl);border-color:rgba(29,158,117,0.3);color:var(--xpd);}
+@media(prefers-color-scheme:dark){
+  .rate-btn.r-hard{color:#fca5a5;}
+  .rate-btn.r-unsure{color:#d4900a;}
+}
+
+/* ── feedback & next ── */
+#feedback{font-size:14px;min-height:20px;margin-bottom:8px;line-height:1.5;color:var(--text2);}
+#feedback.ok{color:var(--xpd);}
+#feedback.err{color:var(--wrong);}
+#next-btn{width:100%;padding:11px;font-size:15px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:pointer;color:var(--text);display:none;transition:background 0.1s;font-family:inherit;}
+#next-btn:hover{background:var(--bg3);}
+
+/* ── floats ── */
+.xp-pop{position:absolute;right:1.75rem;font-size:18px;font-weight:500;color:var(--xp);pointer-events:none;animation:floatUp 1.1s ease-out forwards;}
+.streak-pop{position:absolute;left:50%;font-size:15px;font-weight:500;color:var(--streak);pointer-events:none;white-space:nowrap;animation:floatUpC 1.4s ease-out forwards;}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-55px)}}
+@keyframes floatUpC{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-55px)}}
+
+/* ── summary ── */
+#summary{display:none;padding:1rem 0 0.5rem;}
+#sum-header{text-align:center;margin-bottom:1.5rem;}
+#sum-header h2{font-size:26px;font-weight:500;margin-bottom:6px;}
+#sum-header p{font-size:15px;color:var(--text2);}
+#sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem;}
+.sum-stat{background:var(--bg2);border-radius:var(--r);padding:14px 6px;text-align:center;}
+.sum-stat .val{font-size:24px;font-weight:500;}
+.sum-stat .lbl{font-size:11px;color:var(--text2);margin-top:3px;}
+#sum-bar-section{margin-bottom:1.25rem;}
+#sum-bar-label{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);margin-bottom:6px;}
+#sum-bar-wrap{height:10px;background:var(--bg3);border-radius:5px;overflow:hidden;}
+#sum-bar{height:100%;border-radius:5px;transition:width 1s ease;}
+#sum-cat{margin-bottom:1.25rem;}
+#sum-cat h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;}
+.cat-stat-row{display:flex;align-items:center;gap:10px;margin-bottom:6px;font-size:13px;}
+.csn{flex:1;color:var(--text2);}
+.csbar{width:80px;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.csbar-fill{height:100%;border-radius:3px;}
+.cspct{font-size:12px;color:var(--text2);min-width:32px;text-align:right;}
+
+/* ── adaptive / history panel ── */
+#sum-adaptive{margin-bottom:1.25rem;}
+#sum-adaptive h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;}
+.adp-section{margin-bottom:10px;}
+.adp-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text2);margin-bottom:6px;}
+.adp-q{padding:8px 10px;border-radius:var(--r);margin-bottom:5px;font-size:13px;line-height:1.5;}
+.adp-q.adp-hard{background:var(--wrongl);border:0.5px solid rgba(226,75,74,0.25);}
+.adp-q.adp-unsure{background:var(--streakl);border:0.5px solid rgba(239,159,39,0.25);}
+.adp-q-text{color:var(--text2);}
+.adp-q-hint{font-size:11px;color:var(--text2);opacity:0.7;margin-top:2px;}
+
+#sum-history{margin-bottom:1.25rem;}
+#sum-history h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;}
+.hist-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:var(--r);background:var(--bg2);margin-bottom:5px;font-size:13px;}
+.hist-date{color:var(--text2);}
+.hist-score{font-weight:500;}
+.hist-clear{font-size:12px;color:var(--text2);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline;}
+.hist-clear:hover{color:var(--wrong);}
+
+#sum-btns{display:flex;gap:8px;}
+#restart-btn,#back-btn{flex:1;padding:11px;font-size:15px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:pointer;color:var(--text);font-family:inherit;transition:background 0.1s;}
+#restart-btn:hover,#back-btn:hover{background:var(--bg3);}
+
+/* ── start screen ── */
+#start-screen{text-align:center;padding:1.5rem 0 0.5rem;}
+#start-screen h2{font-size:22px;font-weight:500;margin-bottom:8px;}
+#start-screen .desc{font-size:14px;color:var(--text2);margin-bottom:1.75rem;line-height:1.6;max-width:380px;margin-left:auto;margin-right:auto;}
+.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--text2);margin-bottom:8px;text-align:left;}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:1.5rem;}
+.cat-btn{padding:9px 12px;font-size:13px;border-radius:var(--r);border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;text-align:left;font-family:inherit;transition:background 0.1s,color 0.1s;line-height:1.3;}
+.cat-btn:hover{background:var(--bg3);}
+.cat-btn.active{background:var(--bg3);border-color:var(--border2);color:var(--text);font-weight:500;}
+.len-row{display:flex;gap:6px;margin-bottom:1.5rem;}
+.len-btn{flex:1;padding:9px;font-size:14px;border-radius:var(--r);border:0.5px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;font-family:inherit;transition:background 0.1s,color 0.1s;}
+.len-btn:hover{background:var(--bg3);}
+.len-btn.active{background:var(--bg3);border-color:var(--border2);color:var(--text);font-weight:500;}
+#start-btn{width:100%;padding:11px;font-size:15px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:pointer;color:var(--text);font-family:inherit;transition:background 0.1s;}
+#start-btn:hover{background:var(--bg3);}
+
+/* ── history in start screen ── */
+#start-history{margin-top:1.5rem;text-align:left;}
+#start-history h3{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--text2);margin-bottom:8px;}
+
+#game-area{display:none;}
+
+@media(max-width:480px){
+  #options-grid{grid-template-columns:1fr;}
+  body{padding:1rem 0.5rem 3rem;}
+  #game{padding:1.25rem 1rem;}
+  #sum-grid{grid-template-columns:repeat(2,1fr);}
+  .cat-grid{grid-template-columns:1fr;}
+  #sum-btns{flex-direction:column;}
+  #rate-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div id="game">
+  <h1 class="logo">Biologi åk 7 — Livets uppkomst, utveckling och mångfald</h1>
+
+  <!-- ══ START ══ -->
+  <div id="start-screen">
+    <h2>Minnesåterkallning</h2>
+    <p class="desc">Träna med flervalsfrågor, sant/falskt och skriv-svar.<br>Fel svar dyker upp igen.</p>
+
+    <div class="section-label">Välj område</div>
+    <div class="cat-grid">
+      <button class="cat-btn active" data-cat="all" onclick="pickCat(this)">Alla områden</button>
+      <button class="cat-btn" data-cat="Livets förutsättningar" onclick="pickCat(this)">Livets förutsättningar</button>
+      <button class="cat-btn" data-cat="Livets indelning" onclick="pickCat(this)">Livets indelning</button>
+      <button class="cat-btn" data-cat="Livets utveckling" onclick="pickCat(this)">Livets utveckling</button>
+      <button class="cat-btn" data-cat="Ryggradsdjurens utveckling" onclick="pickCat(this)">Ryggradsdjurens utveckling</button>
+      <button class="cat-btn" data-cat="Människans utveckling" onclick="pickCat(this)">Människans utveckling</button>
+    </div>
+
+    <div class="section-label">Antal frågor</div>
+    <div class="len-row">
+      <button class="len-btn" data-n="10" onclick="pickLen(this)">10</button>
+      <button class="len-btn active" data-n="20" onclick="pickLen(this)">20</button>
+      <button class="len-btn" data-n="30" onclick="pickLen(this)">30</button>
+    </div>
+
+    <button id="start-btn" onclick="startGame()">Starta</button>
+
+    <div id="start-history"></div>
+  </div>
+
+  <!-- ══ GAME ══ -->
+  <div id="game-area">
+    <button id="back-ingame" onclick="goBack()">← Tillbaka</button>
+    <div id="level-row">
+      <div id="level-badge">Nybörjare — Nivå 1</div>
+      <div id="xp-bar-wrap"><div id="xp-bar" style="width:0%"></div></div>
+      <div id="xp-label">0 / 50 XP</div>
+    </div>
+    <div id="topbar">
+      <div class="stat">Streak <span id="streak-val">0</span></div>
+      <div class="stat">Rätt <span id="correct-val">0</span></div>
+      <div id="q-bar-wrap"><div id="q-bar" style="width:0%"></div></div>
+      <div class="stat" id="q-counter">0 / 0</div>
+    </div>
+    <div id="card">
+      <div id="mode-badge" class="badge-mc">Flerval</div>
+      <div id="question-text"></div>
+      <div id="sub-text" style="display:none"></div>
+    </div>
+    <div id="options-grid"></div>
+    <div id="fill-row" style="display:none">
+      <input id="fill-input" type="text" placeholder="Skriv svaret..." autocomplete="off"/>
+      <button id="fill-submit" onclick="submitFill()">Svara</button>
+    </div>
+    <div id="tf-row" style="display:none">
+      <button class="tf-btn" id="tf-true" onclick="answerTF(true)">Sant</button>
+      <button class="tf-btn" id="tf-false" onclick="answerTF(false)">Falskt</button>
+    </div>
+    <div id="feedback"></div>
+    <div id="self-rate">
+      <p>Hur säker var du på svaret?</p>
+      <div id="rate-row">
+        <button class="rate-btn r-hard" onclick="selfRate('hard')">Osäker</button>
+        <button class="rate-btn r-unsure" onclick="selfRate('unsure')">Ganska säker</button>
+        <button class="rate-btn r-easy" onclick="selfRate('easy')">Säker</button>
+      </div>
+    </div>
+    <button id="next-btn" onclick="nextQ()">Nästa fråga</button>
+  </div>
+
+  <!-- ══ SUMMARY ══ -->
+  <div id="summary">
+    <div id="sum-header">
+      <h2 id="sum-title"></h2>
+      <p id="sum-desc"></p>
+    </div>
+    <div id="sum-grid">
+      <div class="sum-stat"><div class="val" id="s-xp">0</div><div class="lbl">XP</div></div>
+      <div class="sum-stat"><div class="val" id="s-correct">0</div><div class="lbl">Rätt</div></div>
+      <div class="sum-stat"><div class="val" id="s-streak">0</div><div class="lbl">Bästa streak</div></div>
+      <div class="sum-stat"><div class="val" id="s-pct">0%</div><div class="lbl">Träffsäkerhet</div></div>
+    </div>
+    <div id="sum-bar-section">
+      <div id="sum-bar-label"><span>Träffsäkerhet</span><span id="sum-bar-pct">0%</span></div>
+      <div id="sum-bar-wrap"><div id="sum-bar" style="width:0%"></div></div>
+    </div>
+    <div id="sum-cat"></div>
+    <div id="sum-adaptive"></div>
+    <div id="sum-history"></div>
+    <div id="sum-btns">
+      <button id="back-btn" onclick="goBack()">← Inställningar</button>
+      <button id="restart-btn" onclick="startGame()">Spela igen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// FRÅGEBANK
+// mode: "mc" | "tf" | "fill"
+// mc: opts[4] alla rimliga, correct = index för rätt svar
+// tf: correct = true/false, exp = förklaring vid fel
+// fill: correct = sträng (normaliseras vid jämförelse)
+// accepted: extra godkända stavningar/former
+// ══════════════════════════════════════════════════════════════
+const BANK = [
+
+// ── LIVETS FÖRUTSÄTTNINGAR ────────────────────────────────────
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad är en cell?",
+ opts:["Den minsta enhet som bygger upp en levande organism",
+       "Det kemiska ämne som generna är uppbyggda av",
+       "En grupp organismer som kan få gemensamma ungar",
+       "Den process där växten omvandlar solenergi till socker"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad har växtceller som djurceller saknar?",
+ opts:["Cellvägg och klorofyllkorn",
+       "Cellmembran och cellkärna",
+       "DNA och arvsmassa",
+       "Cellkärna och ribosomer"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad är cellmembranets funktion?",
+ opts:["Håller ihop cellen och styr vilka ämnen som passerar in och ut",
+       "Innehåller cellens arvsmassa och styr ärftligheten",
+       "Ger cellen stadga och skyddar den mot skada utifrån",
+       "Fångar upp solenergi och driver fotosyntesen"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad innehåller cellkärnan?",
+ opts:["Gener som består av DNA",
+       "Klorofyll som driver fotosyntesen",
+       "Cellmembran som reglerar transport",
+       "Energirika kolhydrater och proteiner"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Varför kan svampar inte använda solenergi som energikälla?",
+ opts:["De saknar klorofyll",
+       "De lever alltid i mörka miljöer utan tillgång till ljus",
+       "De saknar cellmembran och kan inte ta upp energi",
+       "De förökar sig enbart genom delning och behöver inte energi"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad kallas organismer vars celler saknar cellkärna?",
+ opts:["Prokaryoter",
+       "Eukaryoter",
+       "Protister",
+       "Hybrider"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vilka organismer räknas som eukaryoter?",
+ opts:["Djur, växter, svampar och protister",
+       "Bakterier och arkéer",
+       "Enbart växter och alger",
+       "Cyanobakterier och arkéer"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Var finns DNA i en bakteriecell?",
+ opts:["Fritt i cellen — bakterier saknar cellkärna",
+       "I cellkärnan, precis som hos djur och växter",
+       "I klorofyllkornen, inbäddade i membranet",
+       "Inuti cellväggen som omger cellen"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Hur förökar sig encelliga organismer som amöban?",
+ opts:["Celldelning — en cell delar sig och blir två nya",
+       "Befruktning — en hancell och en honacell möts",
+       "Fotosyntes — energin lagras och bildar nya celler",
+       "Sporbildning — cellen bildar ett skyddande hölje"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vilket ämne fångar upp solenergin vid fotosyntesen?",
+ opts:["Klorofyll",
+       "DNA",
+       "Cellmembran",
+       "Glukos"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad skiljer arkéer från vanliga bakterier?",
+ opts:["Deras cellväggar innehåller olika ämnen och arkéer saknar ofta yttre cellmembran",
+       "Arkéer har cellkärna men bakterier saknar den",
+       "Bakterier saknar DNA medan arkéer har det i cellkärnan",
+       "Arkéer är alltid flercelliga medan bakterier alltid är encelliga"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad har svampceller gemensamt med växtceller men inte med djurceller?",
+ opts:["De har cellvägg",
+       "De har klorofyllkorn",
+       "De kan utföra fotosyntes",
+       "De saknar cellmembran"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Alla organismer är uppbyggda av celler.", correct:true},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Svampceller innehåller klorofyll och kan använda solenergi.", correct:false,
+ exp:"Svampar saknar klorofyll och kan inte använda solenergi."},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Bakterier kallas prokaryoter eftersom de saknar cellkärna.", correct:true},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Djurceller har cellvägg precis som växtceller.", correct:false,
+ exp:"Djurceller saknar cellvägg. Cellvägg finns hos växter och svampar."},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Eukaryoter är organismer som har cellkärna.", correct:true},
+
+{cat:"Livets förutsättningar", mode:"fill",
+ q:"Vad kallas den process där en cell delar sig och bildar två nya celler?",
+ correct:"celldelning",
+ accepted:["celdelning","cell delning"]},
+
+{cat:"Livets förutsättningar", mode:"fill",
+ q:"Vilket ämne består generna av?",
+ correct:"dna",
+ accepted:["DNA"]},
+
+{cat:"Livets förutsättningar", mode:"fill",
+ q:"Vad kallas den tunna hinna som omger cellen och styr vilka ämnen som passerar in och ut?",
+ correct:"cellmembran",
+ accepted:["cell membran","cellmenbran"]},
+
+// ── LIVETS INDELNING ──────────────────────────────────────────
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vad krävs för att två organismer ska tillhöra samma art?",
+ opts:["De måste kunna få fertila ungar tillsammans",
+       "De måste ha liknande utseende och leva i samma miljö",
+       "De måste ha exakt samma DNA-sekvens",
+       "De måste tillhöra samma familj och samma släkte"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Varför räknas häst och åsna som olika arter trots att de kan få ungar?",
+ opts:["Deras avkomma, mulan, är steril och kan inte föröka sig",
+       "De har alltför olika utseende och kroppsstorlek",
+       "Deras DNA stämmer inte tillräckligt väl överens",
+       "De lever naturligt i helt skilda delar av världen"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vem skapade det vetenskapliga namnsystemet med latinska namn?",
+ opts:["Carl von Linné",
+       "Charles Darwin",
+       "Louis Pasteur",
+       "Gregor Mendel"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Hur är ett vetenskapligt artnamn uppbyggt?",
+ opts:["Släktnamn med stor bokstav följt av artnamn med liten bokstav, på latin",
+       "Artnamn med stor bokstav följt av familjenamn med liten bokstav",
+       "Ett enda latinskt ord som anger familjen organismen tillhör",
+       "Familjenamn och ordningsnamn, båda skrivna med stor bokstav"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vilka är de tre domänerna som allt liv delas in i?",
+ opts:["Bakterier, arkéer och eukaryoter",
+       "Djur, växter och svampar",
+       "Protister, bakterier och djur",
+       "Prokaryoter, eukaryoter och protister"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vilken taxonomisk nivå rymmer flest arter — ett släkte eller en familj?",
+ opts:["En familj, eftersom den rymmer flera släkten",
+       "Ett släkte, eftersom det är mer avgränsat och specifikt",
+       "De innehåller alltid exakt lika många arter",
+       "Det beror enbart på vilken organisms vi studerar"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Hur avgör biologer idag hur nära släkt olika organismer är?",
+ opts:["Genom att jämföra deras DNA",
+       "Enbart genom att jämföra yttre utseende och form",
+       "Genom att testa om de kan korsa sig och få ungar",
+       "Genom att studera i vilka geografiska områden de lever"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vad är en hybrid?",
+ opts:["En korsning mellan individer av två olika arter",
+       "En organism med skadat DNA som inte kan dela sig",
+       "En ny art som uppstår när en population isoleras",
+       "En organism som lever både i vatten och på land"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vad är en protist?",
+ opts:["En encellig organism med cellkärna, till exempel amöbor och alger",
+       "En encellig organism utan cellkärna, till exempel bakterier",
+       "En flercellig organism som lever i havsmiljö",
+       "En prokaryot med cellvägg men utan cellkärna"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vad visar grenarna i ett biologiskt släktträd?",
+ opts:["Hur nya arter har uppstått från gemensamma förfäder",
+       "Hur stor en populations storlek är över tid",
+       "Hur gamla olika fossil är i geologiska lager",
+       "Vilka arter som lever och konkurrerar i samma miljö"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"En häst och en åsna tillhör samma art eftersom de kan få ungar.", correct:false,
+ exp:"Deras avkomma, mulan, är steril och kan inte föröka sig. Därför är de olika arter."},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"Det vetenskapliga artnamnet skrivs alltid med liten bokstav.", correct:true},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"DNA-analys används idag för att avgöra hur nära släkt organismer är.", correct:true},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"Protister är flercelliga organismer med cellkärna.", correct:false,
+ exp:"Protister är encelliga organismer med cellkärna."},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"Allt liv på jorden delas in i tre domäner.", correct:true},
+
+{cat:"Livets indelning", mode:"fill",
+ q:"Vad kallas en korsning mellan två olika arter vars avkomma är steril?",
+ correct:"hybrid",
+ accepted:["hybred","hybrit"]},
+
+{cat:"Livets indelning", mode:"fill",
+ q:"Hur kallas en organism som kan fortplanta sig och få avkomma som i sin tur kan föröka sig?",
+ correct:"fertil",
+ accepted:["fertill"]},
+
+// ── LIVETS UTVECKLING ─────────────────────────────────────────
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Hur länge sedan bildades jorden?",
+ opts:["För ungefär 4,5 miljarder år sedan",
+       "För ungefär 3,5 miljarder år sedan",
+       "För ungefär 540 miljoner år sedan",
+       "För ungefär 1 miljard år sedan"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vilka var de allra första organismerna på jorden?",
+ opts:["Encelliga bakterier i haven",
+       "Cyanobakterier med fotosyntes på land",
+       "Flercelliga alger längs havskusterna",
+       "Protister i varma vulkaniska sjöar"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vilka var de första organismer som utförde fotosyntes?",
+ opts:["Cyanobakterierna",
+       "De tidiga grönalgerna",
+       "Trilobiternas förfäder",
+       "De första enkla protisterna"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad innebar den kambriska explosionen?",
+ opts:["En snabb ökning av antalet djurarter, för ca 540 miljoner år sedan",
+       "Att dinosaurierna dog ut för ca 65 miljoner år sedan",
+       "Att livet för första gången tog sig upp på land",
+       "Att atmosfären plötsligt fick en syrerik sammansättning"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad kallas den istid då jordens yta täcktes av is i nära 500 miljoner år?",
+ opts:["Snöbollsjorden",
+       "Kambriska explosionen",
+       "Triasperioden",
+       "Jordens urtid"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad bidrog cyanobakteriernas fotosyntes med?",
+ opts:["De frigjorde syre och syresatte atmosfären och haven",
+       "De bildade de första landväxterna ur algerna",
+       "De utvecklades direkt till de första ryggradsdjuren",
+       "De tog upp koldioxid och bildade jordens ozonlager"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Varför uppstod det första livet i haven och inte på land?",
+ opts:["Havet gav rätt kemiska förutsättningar och skydd mot UV-strålning",
+       "Havet var varmare än luften och hade mer energi tillgänglig",
+       "Landytan bestod enbart av vulkaner utan plats för organismer",
+       "Det saknades koldioxid på land som organismerna behövde"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad är Pikaia?",
+ opts:["Det första kända ryggsträngsdjuret — förfader till alla ryggradsdjur",
+       "Den första fisken som anpassade sig till liv på land",
+       "Det första flercelliga djuret — liknande ett svampdjur",
+       "En utdöd bakterieart som levde för 3 miljarder år sedan"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad var trilobiter?",
+ opts:["En utdöd djurgrupp som dominerade haven i ca 250 miljoner år",
+       "De första flercelliga algerna som syresatte haven",
+       "Förfäder till dinosaurierna under triasperioden",
+       "En grupp primitiva fiskar med skelett av brosk"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vilka var de första djuren att ta sig upp på land?",
+ opts:["Djur liknande nutida klomaskar, för ca 500 miljoner år sedan",
+       "Trilobiter som kröp upp längs stränderna",
+       "Groddjur med inre skelett och fyra ben",
+       "Cyanobakterier som koloniserade strandlinjen"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"Det första livet uppstod i haven för minst 3,5 miljarder år sedan.", correct:true},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"Den kambriska explosionen innebar att många djurarter dog ut.", correct:false,
+ exp:"Den kambriska explosionen innebar tvärtom en snabb ökning av antalet djurarter."},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"Algerna är växternas förfäder.", correct:true},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"Snöbollsjorden varade i ungefär 500 miljoner år.", correct:true},
+
+{cat:"Livets utveckling", mode:"fill",
+ q:"Vad kallas den kraftiga ökningen av djurarter som skedde för ca 540 miljoner år sedan?",
+ correct:"kambriska explosionen",
+ accepted:["kambrianska explosionen","den kambriska explosionen"]},
+
+{cat:"Livets utveckling", mode:"fill",
+ q:"Vilka bakterier var de första att utföra fotosyntes och syresätta haven?",
+ correct:"cyanobakterier",
+ accepted:["cyanobacteria","cyanobakterie"]},
+
+// ── RYGGRADSDJURENS UTVECKLING ────────────────────────────────
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilka var de första ryggradsdjuren?",
+ opts:["Fiskar med skelett av brosk och utan käkar",
+       "Groddjur med fyra ben och enkla lungor",
+       "Kräldjur med fjäll och ägg med skal",
+       "Leddjur med yttre skelett och många ben"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilka var de första ryggradsdjuren som levde på land?",
+ opts:["Groddjuren (amfibierna)",
+       "Kräldjuren (reptilerna)",
+       "De tidiga däggdjuren",
+       "De första primitiva fåglarna"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Varför är groddjur fortfarande beroende av vatten?",
+ opts:["De har tunn fuktig hud och behöver vatten för sin förökning",
+       "De saknar lungor helt och andas enbart med gälar",
+       "De kan inte reglera sin saltbalans utan att leva i vatten",
+       "De kan bara äta vattenlevande djur som fisk och insektslarver"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vad utmärkte kräldjuren jämfört med groddjuren?",
+ opts:["Inre befruktning, ägg med skal och tjock torr hud",
+       "Yttre befruktning och tunn fuktig hud",
+       "De var jämnvarma och ammade sina ungar",
+       "De hade skelett av brosk och saknade riktiga ben"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Från vilken grupp utvecklades fåglarna?",
+ opts:["Från små köttätande dinosaurier",
+       "Från däggdjur som anpassade sig till flygning",
+       "Från groddjur som levde uppe i träden",
+       "Från kräldjur som levde i vatten"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Varför fick däggdjuren en fördel när dinosaurierna dog ut?",
+ opts:["Konkurrensen minskade och andra djurgrupper kunde utvecklas snabbare",
+       "Meteoritnedslaget utrotade alla rovdjur utom däggdjuren",
+       "Däggdjuren var de enda som kunde överleva extremt kallt klimat",
+       "Dinosaurierna lämnade efter sig ett DNA som däggdjuren ärvde"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vad orsakade dinosauriernas utdöende för ca 65 miljoner år sedan?",
+ opts:["Ett meteoritnedslag som kraftigt förändrade klimatet",
+       "En istid som frös ut de flesta landlevande djur",
+       "Konkurrens från de snabbt expanderande däggdjuren",
+       "Sjukdomar som spred sig bland de stora djurgrupperna"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Från vilken grupp utvecklades däggdjuren?",
+ opts:["Från kräldjur, men inte från dinosauriernas linje",
+       "Från groddjur med lungor och fyra ben",
+       "Från tidiga fåglar under triasperioden",
+       "Från primitiva fiskar i sötvatten"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilket djur var förfader till alla ryggradsdjur?",
+ opts:["Pikaia — det första kända ryggsträngsdjuret",
+       "Trilobiten — det dominerande djuret i 250 miljoner år",
+       "Den tidiga amöban — det första flercelliga djuret",
+       "En primitiv groddjursart från den kambriska perioden"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Groddjur var de första ryggradsdjuren på land.", correct:true},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Kräldjur lägger ägg med skal och har inre befruktning.", correct:true},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Fåglarna utvecklades från däggdjur.", correct:false,
+ exp:"Fåglarna utvecklades från små köttätande dinosaurier."},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"De första fiskarna saknade käkar.", correct:true},
+
+{cat:"Ryggradsdjurens utveckling", mode:"fill",
+ q:"Vad kallas djur med ett inre skelett, uppdelade i fiskar, groddjur, kräldjur, fåglar och däggdjur?",
+ correct:"ryggradsdjur",
+ accepted:["rygg rads djur"]},
+
+{cat:"Ryggradsdjurens utveckling", mode:"fill",
+ q:"Vad är ett annat ord för kräldjur?",
+ correct:"reptiler",
+ accepted:["reptil","reptiler"]},
+
+// ── MÄNNISKANS UTVECKLING ─────────────────────────────────────
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Var utvecklades de första människorna?",
+ opts:["På savannen i östra Afrika",
+       "I de fuktiga regnskogarna i Asien",
+       "I södra Europa under en varm period",
+       "I Mellanöstern vid de stora floderna"],
+ correct:0},
+
+// Not "schimpansen" alone — bonobo is also equally close.
+// According to the summary: "Schimpansen är människans närmaste nu levande släkting"
+// so this question is fine per the source material.
+{cat:"Människans utveckling", mode:"mc",
+ q:"I vilket nu levande djurs DNA liknar människans DNA mest?",
+ opts:["Schimpansens",
+       "Gorillans",
+       "Orangutangens",
+       "Makakins"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad kunde Homo habilis som tidigare människoarter inte kunde?",
+ opts:["Använda enkla stenredskap",
+       "Använda eld för att laga mat",
+       "Tala ett fullt artikulerat språk",
+       "Vandra långa sträckor ut ur Afrika"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad kunde Homo erectus som Homo habilis inte kunde?",
+ opts:["Använda eld för att laga mat och skrämma rovdjur",
+       "Tillverka stenredskap för att skära och hugga",
+       "Gå upprätt på två ben på savannen",
+       "Odla grödor och bilda organiserade samhällen"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad är den viktigaste fördelen med att gå upprätt på två ben, enligt sammanfattningen?",
+ opts:["Det sparar energi och frigör händerna så att de kan användas till annat",
+       "Det gör att man springer snabbare och lättare undkommer rovdjur",
+       "Det ger bättre balans och smidighet vid klättring i träd",
+       "Det minskar risken för solsting eftersom mindre av kroppen exponeras mot solen"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"När och var uppstod Homo sapiens?",
+ opts:["För ca 200 000 år sedan i Afrika",
+       "För ca 500 000 år sedan i Europa",
+       "För ca 40 000 år sedan i sydvästra Asien",
+       "För ca 2 miljoner år sedan på den afrikanska savannen"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Varför ser människor från olika delar av världen olika ut?",
+ opts:["Vi är anpassade till olika miljöer — mörk hud skyddar mot solstrålning",
+       "Vi härstammar från helt olika förfäder som aldrig möttes",
+       "Maten vi ätit under evolutionen har format olika utseenden",
+       "Klimatförändringar de senaste tusen åren har påverkat utseendet"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"När försvann neandertalmänniskan från Europa?",
+ opts:["För ca 25 000 år sedan",
+       "För ca 65 000 år sedan",
+       "För ca 200 000 år sedan",
+       "För ca 500 000 år sedan"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vilka av dessa djur är alla primater?",
+ opts:["Människa, gorilla, schimpans och lemur",
+       "Människa, hund, katt och häst",
+       "Människa, örn, groda och orm",
+       "Människa, myra, spindel och krabba"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Hur länge sedan uppstod de första förmänniskorna?",
+ opts:["För ca 5 miljoner år sedan",
+       "För ca 2 miljoner år sedan",
+       "För ca 200 000 år sedan",
+       "För ca 65 miljoner år sedan"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Homo sapiens uppstod i Afrika för ca 200 000 år sedan.", correct:true},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Homo habilis var den människoart som använde eld.", correct:false,
+ exp:"Det var Homo erectus som använde eld. Homo habilis använde stenredskap."},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Neandertalmänniskan och Homo sapiens levde aldrig vid samma tidpunkt.", correct:false,
+ exp:"De levde parallellt och fick till och med barn tillsammans."},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Alla nu levande människor tillhör arten Homo sapiens.", correct:true},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vilka tre människoarter fanns före Homo sapiens?",
+ opts:["Homo habilis, Homo erectus och neandertalmänniskan",
+       "Homo habilis, Homo erectus och Homo floresiensis",
+       "Australopithecus, Homo habilis och Homo heidelbergensis",
+       "Neandertalmänniskan, Homo floresiensis och Homo denisova"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"fill",
+ q:"Vad kallas den grupp av däggdjur som inkluderar halvapor, spökdjur, apor och människan?",
+ correct:"primater",
+ accepted:["primat","primate"]},
+
+];
+
+// ══════════════════════════════════════════════════════════════
+// KONSTANTER & STATE
+// ══════════════════════════════════════════════════════════════
+const CAT_COLORS = {
+  "Livets förutsättningar":"#1D9E75",
+  "Livets indelning":"#534AB7",
+  "Livets utveckling":"#EF9F27",
+  "Ryggradsdjurens utveckling":"#E24B4A",
+  "Människans utveckling":"#0C447C"
+};
+const LVL_NAMES = ["Nybörjare","Lärling","Elev","Kunnig","Expert","Mästare"];
+const XP_PER_LVL = 50;
+const STORAGE_KEY = "bio7_data";
+
+let selCat = "all", selN = 20;
+let queue = [], wrongBuf = [];
+let uniqueAnswered = 0, completedCount = 0, correct = 0, xp = 0, streak = 0, bestStreak = 0;
+let current = null, currentCorrect = null;
+let catStats = {}; // {cat: {q,c}}
+let selfRatings = {}; // {qKey: 'hard'|'unsure'|'easy'}
+let answeredKeys = new Set(); // unique questions answered this session
+let waitingForRate = false;
+let currentIsFirst = true; // whether current question is being seen for first time
+
+// Persistent data
+// { history: [{date,cat,n,correct,total,pct}], adaptive: {qKey: {hard,unsure,easy,correct}} }
+let persist = loadData();
+
+// ══════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ══════════════════════════════════════════════════════════════
+function loadData(){
+  try {
+    let d = localStorage.getItem(STORAGE_KEY);
+    if(d) return JSON.parse(d);
+  } catch(e){}
+  return { history:[], adaptive:{} };
+}
+function saveData(){
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(persist)); } catch(e){}
+}
+function qKey(q){ return q.cat.slice(0,3) + "_" + q.q.slice(0,30); }
+
+// ══════════════════════════════════════════════════════════════
+// START UI
+// ══════════════════════════════════════════════════════════════
+function pickCat(btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selCat = btn.dataset.cat;
+}
+function pickLen(btn){
+  document.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selN = parseInt(btn.dataset.n);
+}
+
+function renderStartHistory(){
+  let el = document.getElementById('start-history');
+  if(!persist.history || persist.history.length === 0){ el.innerHTML = ''; return; }
+  let html = '<h3>Tidigare sessioner</h3>';
+  let recent = persist.history.slice(-5).reverse();
+  recent.forEach(h=>{
+    let col = h.pct >= 70 ? 'var(--xpd)' : h.pct >= 50 ? '#7a4800' : 'var(--wrong)';
+    html += `<div class="hist-row">
+      <span class="hist-date">${h.date} · ${h.cat==='all'?'Alla områden':h.cat}</span>
+      <span class="hist-score" style="color:${col}">${h.correct}/${h.total} (${h.pct}%)</span>
+    </div>`;
+  });
+  html += `<div style="text-align:right;margin-top:6px"><button class="hist-clear" onclick="clearHistory()">Rensa historik</button></div>`;
+  el.innerHTML = html;
+}
+function clearHistory(){
+  persist.history = [];
+  persist.adaptive = {};
+  saveData();
+  renderStartHistory();
+}
+
+// ══════════════════════════════════════════════════════════════
+// GAME START
+// ══════════════════════════════════════════════════════════════
+function startGame(){
+  let pool = selCat === "all" ? [...BANK] : BANK.filter(q=>q.cat===selCat);
+
+  // Adaptive: boost probability for questions rated 'hard' or 'unsure'
+  let weighted = [];
+  pool.forEach(q=>{
+    let k = qKey(q);
+    let a = persist.adaptive[k];
+    if(a){
+      if(a.hard > (a.easy||0)) { weighted.push(q); weighted.push(q); } // double weight
+      else if(a.unsure > (a.easy||0)) weighted.push(q);                // 1.5× weight
+    }
+    weighted.push(q);
+  });
+  weighted = shuffle(weighted);
+  // Deduplicate while preserving order (first occurrence wins)
+  let seen = new Set(), deduped = [];
+  weighted.forEach(q=>{ let k=qKey(q); if(!seen.has(k)){seen.add(k);deduped.push(q);} });
+
+  // Interleave categories if "all"
+  if(selCat === "all") deduped = interleave(deduped);
+
+  queue = deduped.slice(0, selN).map(item=>({item}));
+  wrongBuf = []; catStats = {}; selfRatings = {};
+  uniqueAnswered = 0; completedCount = 0; correct = 0; xp = 0; streak = 0; bestStreak = 0;
+  answeredKeys = new Set(); waitingForRate = false; currentIsFirst = true;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('game-area').style.display = 'block';
+  updateHUD();
+  showNext();
+}
+
+function interleave(arr){
+  let cats={};
+  arr.forEach(q=>{ if(!cats[q.cat])cats[q.cat]=[]; cats[q.cat].push(q); });
+  let keys=Object.keys(cats), out=[], i=0;
+  while(keys.some(k=>cats[k].length>0)){
+    let k=keys[i%keys.length];
+    if(cats[k].length>0) out.push(cats[k].shift());
+    i++;
+  }
+  return out;
+}
+
+// ══════════════════════════════════════════════════════════════
+// QUESTION FLOW
+// ══════════════════════════════════════════════════════════════
+function showNext(){
+  if(waitingForRate) return;
+  let entry;
+  // Spacing: 35% chance to revisit wrong answers mid-session
+  if(wrongBuf.length > 0 && (queue.length === 0 || Math.random() < 0.35))
+    entry = wrongBuf.shift();
+  else if(queue.length > 0)
+    entry = queue.shift();
+  else if(wrongBuf.length > 0)
+    entry = wrongBuf.shift();
+  else { showSummary(); return; }
+
+  current = entry.item;
+  let k = qKey(current);
+  currentIsFirst = !answeredKeys.has(k);
+  if(currentIsFirst) { answeredKeys.add(k); uniqueAnswered++; catStats[current.cat] = catStats[current.cat]||{q:0,c:0}; catStats[current.cat].q++; }
+  renderQ();
+}
+
+function renderQ(){
+  let card = document.getElementById('card');
+  card.className = '';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = '';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('self-rate').style.display = 'none';
+  document.getElementById('options-grid').innerHTML = '';
+  document.getElementById('fill-row').style.display = 'none';
+  document.getElementById('tf-row').style.display = 'none';
+  document.getElementById('sub-text').style.display = 'none';
+  let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
+  tT.disabled=false; tT.className='tf-btn';
+  tF.disabled=false; tF.className='tf-btn';
+
+  let q = current;
+  let badge = document.getElementById('mode-badge');
+  let qt = document.getElementById('question-text');
+
+  if(q.mode === 'mc'){
+    badge.textContent = 'Flerval'; badge.className = 'badge-mc';
+    qt.textContent = q.q;
+    let correctText = q.opts[q.correct];
+    let opts = shuffle([...q.opts]);
+    let grid = document.getElementById('options-grid');
+    opts.forEach(o=>{
+      let b = document.createElement('button');
+      b.className = 'opt-btn'; b.textContent = o;
+      b.onclick = ()=>answerMC(o===correctText, b, correctText);
+      grid.appendChild(b);
+    });
+    currentCorrect = correctText;
+  } else if(q.mode === 'tf'){
+    badge.textContent = 'Sant eller falskt'; badge.className = 'badge-tf';
+    qt.textContent = q.q;
+    document.getElementById('tf-row').style.display = 'flex';
+    currentCorrect = q.correct;
+  } else {
+    badge.textContent = 'Skriv svaret'; badge.className = 'badge-fill';
+    qt.textContent = q.q;
+    document.getElementById('fill-row').style.display = 'flex';
+    let inp = document.getElementById('fill-input');
+    inp.value = ''; inp.disabled = false;
+    setTimeout(()=>inp.focus(), 50);
+    currentCorrect = q.correct;
+  }
+  updateHUD();
+}
+
+// ══════════════════════════════════════════════════════════════
+// ANSWER HANDLERS
+// New flow: answer → disable inputs → show self-rating →
+//           selfRate() reveals result → auto-advance after short delay
+// ══════════════════════════════════════════════════════════════
+let pendingIsOk = false, pendingCorrectDisplay = '', pendingCorrectText = '';
+
+let clickedBtn = null;
+function answerMC(isOk, btn, correctText){
+  // Disable all options immediately so user can't change answer
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  clickedBtn = btn; // remember which button was clicked
+  pendingIsOk = isOk;
+  pendingCorrectDisplay = correctText;
+  pendingCorrectText = correctText;
+  showSelfRate();
+}
+
+function answerTF(answer){
+  let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
+  tT.disabled=true; tF.disabled=true;
+  pendingIsOk = answer === currentCorrect;
+  pendingCorrectDisplay = current.exp || (currentCorrect ? 'Sant.' : 'Falskt.');
+  pendingCorrectText = '';
+  showSelfRate();
+}
+
+function submitFill(){
+  let inp = document.getElementById('fill-input');
+  let val = inp.value.trim(); if(!val) return;
+  inp.disabled = true;
+  pendingIsOk = checkFill(val, current);
+  pendingCorrectDisplay = current.correct;
+  pendingCorrectText = '';
+  showSelfRate();
+}
+
+function showSelfRate(){
+  // Show self-rating BEFORE revealing if answer was right
+  document.getElementById('self-rate').style.display = 'block';
+  waitingForRate = true;
+}
+
+// Tolerant fill check: normalise + accepted forms + edit distance + Swedish morphology
+function checkFill(input, q){
+  let n = normFill(input);
+  let targets = [normFill(q.correct)];
+  if(q.accepted) q.accepted.forEach(a=>targets.push(normFill(a)));
+  // Also add stem variants of each target to handle Swedish inflections
+  targets.forEach(t=>{ stemVariants(t).forEach(v=>{ if(!targets.includes(v)) targets.push(v); }); });
+  if(targets.includes(n)) return true;
+  // Check if the input stem matches any target stem
+  let inputVariants = stemVariants(n);
+  if(inputVariants.some(v=>targets.includes(v))) return true;
+  // Allow 1-character edit distance on the base form
+  return targets.some(t=>editDist(n,t)<=1);
+}
+
+// Normalise for fill answers: lowercase, trim, collapse whitespace, fold Swedish chars
+function normFill(s){
+  return String(s).toLowerCase().trim()
+    .replace(/å/g,'a').replace(/ä/g,'a').replace(/ö/g,'o')
+    .replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ');
+}
+
+// Generate stem variants by stripping common Swedish suffixes
+function stemVariants(w){
+  let variants = [w];
+  // Strip common endings to get approximate stem
+  const suffixes = ['erna','erna','arna','erna','erna',
+                    'erna','arnas','ers','ars',
+                    'erna','en','et','er','ar','or','an','as','ns','ts','s','t','n','a'];
+  suffixes.forEach(suf=>{
+    if(w.endsWith(suf) && w.length - suf.length >= 3){
+      variants.push(w.slice(0, w.length - suf.length));
+    }
+  });
+  // Also add with common endings if word is short (stem → forms)
+  if(w.length >= 3){
+    ['er','ar','en','et','an','or','erna','arna'].forEach(suf=>variants.push(w+suf));
+  }
+  return [...new Set(variants)];
+}
+function editDist(a,b){
+  let m=a.length,n=b.length;
+  let d=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    d[i][j]=a[i-1]===b[j-1]?d[i-1][j-1]:1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);
+  return d[m][n];
+}
+
+function handle(isOk, correctDisplay){
+  // Called AFTER self-rating — now reveal the result
+  let cat = current.cat;
+  let fb = document.getElementById('feedback');
+  let card = document.getElementById('card');
+
+  if(currentIsFirst) completedCount++;
+  if(isOk){
+    if(currentIsFirst) { correct++; if(catStats[cat]) catStats[cat].c++; }
+    streak++; if(streak>bestStreak) bestStreak=streak;
+    let gain = 10 + Math.min(streak-1,5)*2; xp += gain;
+    card.classList.add('correct-flash');
+    // Reveal correct highlight on MC
+    if(pendingCorrectText){
+      document.querySelectorAll('.opt-btn').forEach(b=>{
+        if(b.textContent === pendingCorrectText) b.classList.add('correct');
+      });
+    } else if(current.mode==='tf'){
+      let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
+      if(currentCorrect===true) tT.classList.add('correct'); else tF.classList.add('correct');
+    }
+    fb.className = 'ok';
+    fb.textContent = streak>=3 ? `Rätt! ${streak} i rad! +${gain} XP` : `Rätt! +${gain} XP`;
+    popXP(gain);
+    if(streak>=3 && streak%3===0) popStreak(`🔥 ${streak} i rad!`);
+  } else {
+    streak = 0;
+    card.classList.add('shake','wrong-flash');
+    setTimeout(()=>card.classList.remove('shake'),400);
+    // Reveal correct on MC, highlight wrong button
+    if(pendingCorrectText){
+      document.querySelectorAll('.opt-btn').forEach(b=>{
+        if(b.textContent === pendingCorrectText) b.classList.add('correct');
+      });
+      if(clickedBtn && !clickedBtn.classList.contains('correct')) clickedBtn.classList.add('wrong');
+    } else if(current.mode==='tf'){
+      let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
+      if(currentCorrect===true) tT.classList.add('correct'); else tF.classList.add('correct');
+    }
+    fb.className = 'err';
+    let disp = String(correctDisplay);
+    if(disp.length > 90) disp = disp.slice(0,90)+'…';
+    fb.textContent = `Rätt svar: ${disp}`;
+    wrongBuf.push({item:current});
+  }
+  updateHUD();
+  // Auto-advance after a short pause so user can see the result
+  setTimeout(()=>showNext(), 1400);
+}
+
+function selfRate(rating){
+  // Record in adaptive data
+  let k = qKey(current);
+  if(!persist.adaptive[k]) persist.adaptive[k] = {};
+  persist.adaptive[k][rating] = (persist.adaptive[k][rating]||0) + 1;
+  saveData();
+  selfRatings[k] = rating;
+  document.getElementById('self-rate').style.display = 'none';
+  waitingForRate = false;
+  // Now reveal result
+  handle(pendingIsOk, pendingCorrectDisplay);
+}
+
+function nextQ(){ if(!waitingForRate) showNext(); }
+
+// ══════════════════════════════════════════════════════════════
+// HUD
+// ══════════════════════════════════════════════════════════════
+function updateHUD(){
+  document.getElementById('streak-val').textContent = streak;
+  document.getElementById('correct-val').textContent = correct;
+  // Show questions fully completed (answered + self-rated)
+  let done = Math.min(completedCount, selN);
+  let pct = selN > 0 ? Math.round((done/selN)*100) : 0;
+  document.getElementById('q-bar').style.width = pct+'%';
+  document.getElementById('q-counter').textContent = `${done} / ${selN}`;
+  let lv = Math.floor(xp/XP_PER_LVL)+1;
+  let nm = (LVL_NAMES[Math.min(lv-1,LVL_NAMES.length-1)]) + ' — Nivå ' + lv;
+  document.getElementById('level-badge').textContent = nm;
+  let xpInLv = xp % XP_PER_LVL;
+  document.getElementById('xp-bar').style.width = (xpInLv/XP_PER_LVL*100)+'%';
+  document.getElementById('xp-label').textContent = xp+' / '+(Math.ceil((xp+1)/XP_PER_LVL)*XP_PER_LVL)+' XP';
+}
+
+// ══════════════════════════════════════════════════════════════
+// FLOATS
+// ══════════════════════════════════════════════════════════════
+function popXP(n){
+  let el=document.createElement('div'); el.className='xp-pop';
+  el.style.top='60px'; el.textContent='+'+n+' XP';
+  document.getElementById('game').appendChild(el);
+  setTimeout(()=>el.remove(),1200);
+}
+function popStreak(txt){
+  let el=document.createElement('div'); el.className='streak-pop';
+  el.style.top='50px'; el.textContent=txt;
+  document.getElementById('game').appendChild(el);
+  setTimeout(()=>el.remove(),1500);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUMMARY
+// ══════════════════════════════════════════════════════════════
+function showSummary(){
+  document.getElementById('game-area').style.display = 'none';
+  document.getElementById('summary').style.display = 'block';
+
+  // total = unique questions fully completed this session
+  let total = Math.max(completedCount, 1);
+  let pct = Math.round((correct/total)*100);
+
+  document.getElementById('sum-title').textContent =
+    pct>=90?'Suveränt! 🏆':pct>=70?'Bra jobbat!':pct>=50?'Nästan där!':'Fortsätt träna!';
+  document.getElementById('sum-desc').textContent =
+    `Du svarade på ${total} frågor och fick ${correct} rätt.`;
+  document.getElementById('s-xp').textContent = xp;
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-streak').textContent = bestStreak;
+  document.getElementById('s-pct').textContent = pct+'%';
+  document.getElementById('sum-bar-pct').textContent = pct+'%';
+  let bar = document.getElementById('sum-bar');
+  bar.style.background = pct>=70?'var(--xp)':pct>=50?'var(--streak)':'var(--wrong)';
+  setTimeout(()=>bar.style.width=pct+'%',100);
+
+  // Category breakdown
+  let catHtml = '<h3>Resultat per område</h3>';
+  Object.keys(catStats).forEach(cat=>{
+    let s=catStats[cat]; let p=s.q>0?Math.round(s.c/s.q*100):0;
+    let col=CAT_COLORS[cat]||'var(--xp)';
+    catHtml+=`<div class="cat-stat-row">
+      <span class="csn">${cat}</span>
+      <div class="csbar"><div class="csbar-fill" style="width:${p}%;background:${col}"></div></div>
+      <span class="cspct">${s.c}/${s.q}</span>
+    </div>`;
+  });
+  document.getElementById('sum-cat').innerHTML = catHtml;
+
+  // Adaptive: what to prioritise next
+  let hardQs = [], unsureQs = [];
+  BANK.forEach(q=>{
+    let k = qKey(q);
+    if(selfRatings[k]==='hard') hardQs.push(q.q);
+    else if(selfRatings[k]==='unsure') unsureQs.push(q.q);
+  });
+  let adpHtml = '';
+  if(hardQs.length>0 || unsureQs.length>0){
+    adpHtml = '<h3>Att prioritera nästa gång</h3>';
+    if(hardQs.length>0){
+      adpHtml += '<div class="adp-section"><div class="adp-label">Osäker på</div>';
+      hardQs.forEach(q=>{ adpHtml+=`<div class="adp-q adp-hard"><div class="adp-q-text">${q}</div></div>`; });
+      adpHtml += '</div>';
+    }
+    if(unsureQs.length>0){
+      adpHtml += '<div class="adp-section"><div class="adp-label">Repeteras snart</div>';
+      unsureQs.forEach(q=>{ adpHtml+=`<div class="adp-q adp-unsure"><div class="adp-q-text">${q}</div></div>`; });
+      adpHtml += '</div>';
+    }
+  }
+  document.getElementById('sum-adaptive').innerHTML = adpHtml;
+
+  // Save session to history
+  let now = new Date();
+  let dateStr = now.toLocaleDateString('sv-SE',{day:'numeric',month:'short'}) + ' ' +
+    now.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
+  persist.history.push({date:dateStr, cat:selCat, n:selN, correct, total, pct});
+  if(persist.history.length>20) persist.history=persist.history.slice(-20);
+  saveData();
+
+  // Session history
+  let histHtml = '';
+  if(persist.history.length>1){
+    histHtml = '<h3>Sessionshistorik</h3>';
+    persist.history.slice(-5).reverse().forEach(h=>{
+      let col = h.pct>=70?'var(--xpd)':h.pct>=50?'#7a4800':'var(--wrong)';
+      histHtml+=`<div class="hist-row">
+        <span class="hist-date">${h.date} · ${h.cat==='all'?'Alla':h.cat.split(' ')[0]}</span>
+        <span class="hist-score" style="color:${col}">${h.correct}/${h.total} (${h.pct}%)</span>
+      </div>`;
+    });
+    histHtml += `<div style="text-align:right;margin-top:6px"><button class="hist-clear" onclick="clearHistory()">Rensa historik</button></div>`;
+  }
+  document.getElementById('sum-history').innerHTML = histHtml;
+}
+
+// ══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════
+function goBack(){
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('game-area').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'block';
+  renderStartHistory();
+}
+
+// ══════════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════════
+function shuffle(a){
+  let r=[...a];
+  for(let i=r.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [r[i],r[j]]=[r[j],r[i]];
+  }
+  return r;
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    if(waitingForRate) return;
+    let next=document.getElementById('next-btn');
+    let fill=document.getElementById('fill-input');
+    if(next.style.display==='block') nextQ();
+    else if(document.getElementById('fill-row').style.display!=='none' && !fill.disabled) submitFill();
+  }
+});
+
+// Init start screen
+renderStartHistory();
+</script>
+</body>
+</html>
