@@ -135,14 +135,26 @@ h1.logo{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1.5rem;l
 
 /* ── adaptive / history panel ── */
 #sum-adaptive{margin-bottom:1.25rem;}
-#sum-adaptive h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;}
-.adp-section{margin-bottom:10px;}
-.adp-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--text2);margin-bottom:6px;}
-.adp-q{padding:8px 10px;border-radius:var(--r);margin-bottom:5px;font-size:13px;line-height:1.5;}
-.adp-q.adp-hard{background:var(--wrongl);border:0.5px solid rgba(226,75,74,0.25);}
-.adp-q.adp-unsure{background:var(--streakl);border:0.5px solid rgba(239,159,39,0.25);}
-.adp-q-text{color:var(--text2);}
-.adp-q-hint{font-size:11px;color:var(--text2);opacity:0.7;margin-top:2px;}
+#sum-adaptive h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:10px;}
+.rec-block{border-radius:var(--r);padding:10px 12px;margin-bottom:8px;border:0.5px solid var(--border);}
+.rec-block.rec-wrong{background:var(--wrongl);border-color:rgba(226,75,74,0.3);}
+.rec-block.rec-hard{background:var(--wrongl);border-color:rgba(226,75,74,0.15);}
+.rec-block.rec-unsure{background:var(--streakl);border-color:rgba(239,159,39,0.25);}
+.rec-block.rec-cat{background:var(--bg2);border-color:var(--border);}
+.rec-block.rec-history{background:var(--bg2);border-color:var(--border);}
+.rec-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text2);margin-bottom:7px;}
+.rec-block.rec-wrong .rec-label,.rec-block.rec-hard .rec-label{color:var(--wrong);}
+.rec-block.rec-unsure .rec-label{color:var(--streak);}
+.rec-item{font-size:13px;color:var(--text);line-height:1.45;padding:4px 0;border-bottom:0.5px solid var(--border);}
+.rec-item:last-of-type{border-bottom:none;padding-bottom:0;}
+.rec-tip{font-size:12px;color:var(--text2);margin-top:8px;font-style:italic;}
+.rec-clickable{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;border-bottom:0.5px solid var(--border);padding:6px 0;cursor:pointer;text-align:left;font-family:inherit;gap:8px;}
+.rec-clickable:last-of-type{border-bottom:none;}
+.rec-clickable:hover{opacity:0.75;}
+.rec-item-score{font-size:12px;color:var(--text2);white-space:nowrap;}
+.rec-run-btn{display:block;width:100%;margin-top:10px;padding:9px;font-size:13px;font-weight:500;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:pointer;color:var(--text);font-family:inherit;transition:background 0.1s;text-align:center;}
+.rec-run-btn:hover{background:var(--bg3);}
+.rec-run-top{margin-bottom:10px;margin-top:0;}
 
 #sum-history{margin-bottom:1.25rem;}
 #sum-history h3{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;}
@@ -532,7 +544,7 @@ const BANK = [
  accepted:["hybred","hybrit"]},
 
 {cat:"Livets indelning", mode:"fill",
- q:"Hur kallas en organism som kan fortplanta sig och få avkomma som i sin tur kan föröka sig?",
+ q:"Vad kallas en organism som kan fortplanta sig och få avkomma som i sin tur kan föröka sig?",
  correct:"fertil",
  accepted:["fertill"]},
 
@@ -894,7 +906,7 @@ const BANK = [
  exp:"Svampcellen har cellvägg, vilket djurcellen saknar."},
 
 {cat:"Livets förutsättningar", mode:"fill",
- q:"Hur kallas en organism som består av en enda cell, till exempel en bakterie eller amöba?",
+ q:"Vad kallas en organism som består av en enda cell, till exempel en bakterie eller amöba?",
  correct:"encellig",
  accepted:["encelliga","encellinga"]},
 
@@ -1208,6 +1220,7 @@ function startGame(){
   wrongBuf = []; catStats = {}; selfRatings = {};
   uniqueAnswered = 0; completedCount = 0; correct = 0; xp = 0; streak = 0; bestStreak = 0;
   answeredKeys = new Set(); waitingForRate = false; currentIsFirst = true;
+  spacingBuf = []; recentKeys = [];
 
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('summary').style.display = 'none';
@@ -1231,22 +1244,55 @@ function interleave(arr){
 // ══════════════════════════════════════════════════════════════
 // QUESTION FLOW
 // ══════════════════════════════════════════════════════════════
+
+// spacingBuf holds questions to revisit, each with a 'delay' countdown
+// (number of other questions to show before this one reappears)
+let spacingBuf = []; // [{item, delay}]
+let recentKeys = []; // last N question keys shown, to enforce spacing
+
 function showNext(){
   if(waitingForRate) return;
+
+  // Decrement delays and collect any that are ready
+  spacingBuf.forEach(e=>e.delay--);
+  let ready = spacingBuf.filter(e=>e.delay<=0);
+  spacingBuf = spacingBuf.filter(e=>e.delay>0);
+
   let entry;
-  // Spacing: 35% chance to revisit wrong answers mid-session
-  if(wrongBuf.length > 0 && (queue.length === 0 || Math.random() < 0.35))
-    entry = wrongBuf.shift();
-  else if(queue.length > 0)
+  // Pick source: ready spacing items, or main queue
+  if(ready.length > 0 && (queue.length === 0 || Math.random() < 0.5)){
+    // pick the one that's been waiting longest (most negative delay)
+    ready.sort((a,b)=>a.delay-b.delay);
+    entry = ready.shift();
+    // put any leftover ready ones back with a small extra delay
+    ready.forEach(e=>{ e.delay=1; spacingBuf.push(e); });
+  } else if(queue.length > 0){
     entry = queue.shift();
-  else if(wrongBuf.length > 0)
-    entry = wrongBuf.shift();
-  else { showSummary(); return; }
+  } else if(ready.length > 0){
+    ready.sort((a,b)=>a.delay-b.delay);
+    entry = ready.shift();
+    ready.forEach(e=>{ e.delay=1; spacingBuf.push(e); });
+  } else if(spacingBuf.length > 0){
+    // Force-advance all delays
+    spacingBuf.forEach(e=>e.delay=0);
+    spacingBuf.sort((a,b)=>a.delay-b.delay);
+    entry = spacingBuf.shift();
+  } else {
+    showSummary(); return;
+  }
 
   current = entry.item;
   let k = qKey(current);
+  recentKeys.push(k);
+  if(recentKeys.length > 8) recentKeys.shift();
+
   currentIsFirst = !answeredKeys.has(k);
-  if(currentIsFirst) { answeredKeys.add(k); uniqueAnswered++; catStats[current.cat] = catStats[current.cat]||{q:0,c:0}; catStats[current.cat].q++; }
+  if(currentIsFirst) {
+    answeredKeys.add(k);
+    uniqueAnswered++;
+    catStats[current.cat] = catStats[current.cat]||{q:0,c:0};
+    catStats[current.cat].q++;
+  }
   renderQ();
 }
 
@@ -1433,7 +1479,8 @@ function handle(isOk, correctDisplay){
     let disp = String(correctDisplay);
     if(disp.length > 90) disp = disp.slice(0,90)+'…';
     fb.textContent = `Rätt svar: ${disp}`;
-    wrongBuf.push({item:current});
+    // Re-queue with spacing: show 4 other questions before this one returns
+    spacingBuf.push({item:current, delay:4});
   }
   updateHUD();
   // Auto-advance after a short pause so user can see the result
@@ -1449,6 +1496,20 @@ function selfRate(rating){
   selfRatings[k] = rating;
   document.getElementById('self-rate').style.display = 'none';
   waitingForRate = false;
+
+  // Queue for spaced repetition based on self-rating (only if answered correctly —
+  // wrong answers are already re-queued in handle())
+  if(pendingIsOk){
+    if(rating === 'hard'){
+      // Felt unsure even though correct: revisit after ~3 questions
+      spacingBuf.push({item:current, delay:3});
+    } else if(rating === 'unsure'){
+      // Ganska säker: revisit after ~5 questions
+      spacingBuf.push({item:current, delay:5});
+    }
+    // 'easy' → no re-queue
+  }
+
   // Now reveal result
   handle(pendingIsOk, pendingCorrectDisplay);
 }
@@ -1514,11 +1575,13 @@ function showSummary(){
   bar.style.background = pct>=70?'var(--xp)':pct>=50?'var(--streak)':'var(--wrong)';
   setTimeout(()=>bar.style.width=pct+'%',100);
 
-  // Category breakdown
+  // ── Category breakdown ──────────────────────────────────────
   let catHtml = '<h3>Resultat per område</h3>';
-  Object.keys(catStats).forEach(cat=>{
+  let weakCats = []; // categories with <70% correct
+  Object.keys(catStats).sort().forEach(cat=>{
     let s=catStats[cat]; let p=s.q>0?Math.round(s.c/s.q*100):0;
     let col=CAT_COLORS[cat]||'var(--xp)';
+    if(p < 70) weakCats.push({cat, p});
     catHtml+=`<div class="cat-stat-row">
       <span class="csn">${cat}</span>
       <div class="csbar"><div class="csbar-fill" style="width:${p}%;background:${col}"></div></div>
@@ -1527,30 +1590,124 @@ function showSummary(){
   });
   document.getElementById('sum-cat').innerHTML = catHtml;
 
-  // Adaptive: what to prioritise next
-  let hardQs = [], unsureQs = [];
+  // ── Training recommendations ────────────────────────────────
+  // Collect questions by signal strength:
+  // wrong answer → strongest signal
+  // self-rated 'hard' (correct but felt unsure) → strong signal
+  // self-rated 'unsure' → moderate signal
+  // category <70% → category-level signal
+
+  let wrongQs = [];   // answered incorrectly this session
+  let hardQs = [];    // rated 'hard' (osäker)
+  let unsureQs = [];  // rated 'unsure' (ganska säker)
+
+  // Build from session selfRatings and catStats
+  // selfRatings: {qKey: 'hard'|'unsure'|'easy'}
+  // We also know which were wrong from spacingBuf (still pending) plus
+  // from the persistent adaptive data updated this session
   BANK.forEach(q=>{
     let k = qKey(q);
-    if(selfRatings[k]==='hard') hardQs.push(q.q);
-    else if(selfRatings[k]==='unsure') unsureQs.push(q.q);
+    let rating = selfRatings[k];
+    let adp = persist.adaptive[k]||{};
+    // Was rated this session
+    if(rating === 'hard') hardQs.push(q.q);
+    else if(rating === 'unsure') unsureQs.push(q.q);
   });
-  let adpHtml = '';
-  if(hardQs.length>0 || unsureQs.length>0){
-    adpHtml = '<h3>Att prioritera nästa gång</h3>';
-    if(hardQs.length>0){
-      adpHtml += '<div class="adp-section"><div class="adp-label">Osäker på</div>';
-      hardQs.forEach(q=>{ adpHtml+=`<div class="adp-q adp-hard"><div class="adp-q-text">${q}</div></div>`; });
-      adpHtml += '</div>';
-    }
-    if(unsureQs.length>0){
-      adpHtml += '<div class="adp-section"><div class="adp-label">Repeteras snart</div>';
-      unsureQs.forEach(q=>{ adpHtml+=`<div class="adp-q adp-unsure"><div class="adp-q-text">${q}</div></div>`; });
-      adpHtml += '</div>';
-    }
-  }
-  document.getElementById('sum-adaptive').innerHTML = adpHtml;
 
-  // Save session to history
+  // Wrong questions: questions still in spacingBuf (wrong, not yet mastered)
+  let wrongFromBuf = spacingBuf.map(e=>e.item.q);
+
+  // Also pull from persistent adaptive data: questions with more 'hard' than 'easy' ratings overall
+  let persistentlyHard = [];
+  BANK.forEach(q=>{
+    let k = qKey(q);
+    let adp = persist.adaptive[k]||{};
+    let totalHard = (adp.hard||0) + (adp.unsure||0);
+    let totalEasy = adp.easy||0;
+    // Not already in session lists, and historically difficult
+    if(!selfRatings[k] && totalHard > totalEasy && totalHard >= 2){
+      persistentlyHard.push(q.q);
+    }
+  });
+
+  // Build recommendation HTML
+  let recHtml = '<h3>Vad du bör träna mer på</h3>';
+  let hasAny = false;
+
+  // 1. Wrong answers (highest priority)
+  if(wrongFromBuf.length > 0){
+    hasAny = true;
+    recHtml += `<div class="rec-block rec-wrong">
+      <div class="rec-label">Fel svar — träna igen</div>`;
+    wrongFromBuf.slice(0,6).forEach(q=>{
+      recHtml += `<div class="rec-item">${q}</div>`;
+    });
+    recHtml += '</div>';
+  }
+
+  // 2. Self-rated 'hard' (correct but felt unsure)
+  if(hardQs.length > 0){
+    hasAny = true;
+    recHtml += `<div class="rec-block rec-hard">
+      <div class="rec-label">Osäker på — öva extra</div>`;
+    hardQs.slice(0,6).forEach(q=>{
+      recHtml += `<div class="rec-item">${q}</div>`;
+    });
+    recHtml += '</div>';
+  }
+
+  // 3. Self-rated 'unsure'
+  if(unsureQs.length > 0){
+    hasAny = true;
+    recHtml += `<div class="rec-block rec-unsure">
+      <div class="rec-label">Ganska säker — repetera snart</div>`;
+    unsureQs.slice(0,6).forEach(q=>{
+      recHtml += `<div class="rec-item">${q}</div>`;
+    });
+    recHtml += '</div>';
+  }
+
+  // 4. Weak categories (result-based) — clickable to start focused session
+  if(weakCats.length > 0){
+    hasAny = true;
+    recHtml += `<div class="rec-block rec-cat">
+      <div class="rec-label">Områden med lägre resultat — klicka för att träna</div>`;
+    weakCats.sort((a,b)=>a.p-b.p).forEach(({cat,p})=>{
+      let col = CAT_COLORS[cat]||'var(--xp)';
+      recHtml += `<button class="rec-item rec-clickable" onclick="startFocusCat('${cat.replace(/'/g,"\\'")}')">
+        <span style="color:${col};font-weight:500">${cat}</span>
+        <span class="rec-item-score">${p}% rätt — träna nu →</span>
+      </button>`;
+    });
+    recHtml += '</div>';
+  }
+
+  // 5. Persistently hard questions — clickable to re-run adaptive session
+  if(persistentlyHard.length > 0){
+    hasAny = true;
+    recHtml += `<div class="rec-block rec-history">
+      <div class="rec-label">Återkommande svårigheter (historik)</div>`;
+    persistentlyHard.slice(0,4).forEach(q=>{
+      recHtml += `<div class="rec-item">${q}</div>`;
+    });
+    recHtml += `<button class="rec-run-btn" onclick="startFocusAdaptive()">Öva igen på det som var svårt →</button>`;
+    recHtml += '</div>';
+  }
+
+  // Wrong / hard / unsure blocks — add a "träna igen" button at the top
+  if(wrongFromBuf.length > 0 || hardQs.length > 0 || unsureQs.length > 0){
+    // Prepend a summary action button before the blocks
+    let recActionHtml = `<button class="rec-run-btn rec-run-top" onclick="startFocusAdaptive()">Öva igen på det som var svårt →</button>`;
+    recHtml = recHtml.replace('<h3>Vad du bör träna mer på</h3>', '<h3>Vad du bör träna mer på</h3>' + recActionHtml);
+  }
+
+  if(!hasAny){
+    recHtml += '<p style="font-size:14px;color:var(--text2);margin-top:4px">Inga specifika områden att prioritera — bra jobbat!</p>';
+  }
+
+  document.getElementById('sum-adaptive').innerHTML = recHtml;
+
+  // ── Save session to history ─────────────────────────────────
   let now = new Date();
   let dateStr = now.toLocaleDateString('sv-SE',{day:'numeric',month:'short'}) + ' ' +
     now.toLocaleTimeString('sv-SE',{hour:'2-digit',minute:'2-digit'});
@@ -1558,7 +1715,7 @@ function showSummary(){
   if(persist.history.length>20) persist.history=persist.history.slice(-20);
   saveData();
 
-  // Session history
+  // ── Session history ─────────────────────────────────────────
   let histHtml = '';
   if(persist.history.length>1){
     histHtml = '<h3>Sessionshistorik</h3>';
@@ -1582,6 +1739,22 @@ function goBack(){
   document.getElementById('game-area').style.display = 'none';
   document.getElementById('start-screen').style.display = 'block';
   renderStartHistory();
+}
+
+// Start a focused session on a specific category directly from summary
+function startFocusCat(cat){
+  // Update the UI selection state
+  selCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  startGame();
+}
+
+// Start a focused session using current selCat (all) but with adaptive weighting
+// already saved — just restart the game
+function startFocusAdaptive(){
+  startGame();
 }
 
 // ══════════════════════════════════════════════════════════════
