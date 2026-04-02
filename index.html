@@ -1743,7 +1743,6 @@ function goBack(){
 
 // Start a focused session on a specific category directly from summary
 function startFocusCat(cat){
-  // Update the UI selection state
   selCat = cat;
   document.querySelectorAll('.cat-btn').forEach(b=>{
     b.classList.toggle('active', b.dataset.cat === cat);
@@ -1751,10 +1750,53 @@ function startFocusCat(cat){
   startGame();
 }
 
-// Start a focused session using current selCat (all) but with adaptive weighting
-// already saved — just restart the game
+// Start a session with ONLY the weak questions from the current session:
+// - questions answered incorrectly (still in spacingBuf)
+// - questions self-rated 'hard' or 'unsure'
+// - persistently hard questions from history (if no session weak ones)
 function startFocusAdaptive(){
-  startGame();
+  // Collect weak question objects from this session
+  let weakKeys = new Set();
+
+  // Wrong answers still pending
+  spacingBuf.forEach(e=>weakKeys.add(qKey(e.item)));
+
+  // Self-rated hard or unsure this session
+  Object.keys(selfRatings).forEach(k=>{
+    if(selfRatings[k]==='hard' || selfRatings[k]==='unsure') weakKeys.add(k);
+  });
+
+  // Match keys back to BANK items
+  let focusPool = BANK.filter(q=>weakKeys.has(qKey(q)));
+
+  // Fallback: if nothing from this session, use persistently hard from history
+  if(focusPool.length === 0){
+    focusPool = BANK.filter(q=>{
+      let adp = persist.adaptive[qKey(q)]||{};
+      return (adp.hard||0)+(adp.unsure||0) > (adp.easy||0);
+    });
+  }
+
+  // Final fallback: just restart normally
+  if(focusPool.length === 0){ startGame(); return; }
+
+  // Launch a session with this focused pool
+  // Reset state but keep selN and selCat display
+  queue = shuffle(focusPool).map(item=>({item}));
+  spacingBuf = []; recentKeys = [];
+  uniqueAnswered = 0; completedCount = 0; correct = 0;
+  xp = 0; streak = 0; bestStreak = 0;
+  answeredKeys = new Set(); selfRatings = {};
+  waitingForRate = false; currentIsFirst = true;
+
+  document.getElementById('summary').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-area').style.display = 'block';
+
+  // Update selN to match pool size (no point showing 20 if pool is 5)
+  selN = focusPool.length;
+  updateHUD();
+  showNext();
 }
 
 // ══════════════════════════════════════════════════════════════
