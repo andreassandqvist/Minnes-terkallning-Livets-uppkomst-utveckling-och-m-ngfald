@@ -319,7 +319,7 @@ const BANK = [
  q:"Vad är cellmembranets funktion?",
  opts:["Håller ihop cellen och styr vilka ämnen som passerar in och ut",
        "Innehåller cellens arvsmassa och styr ärftligheten",
-       "Ger cellen stadga och skyddar den mot skada utifrån",
+       "Tillverkar energirika ämnen som cellen kan använda",
        "Fångar upp solenergi och driver fotosyntesen"],
  correct:0},
 
@@ -679,8 +679,8 @@ const BANK = [
  q:"Från vilken grupp utvecklades fåglarna?",
  opts:["Från små köttätande dinosaurier",
        "Från däggdjur som anpassade sig till flygning",
-       "Från groddjur som levde uppe i träden",
-       "Från kräldjur som levde i vatten"],
+       "Från groddjur som klättrade upp i träden",
+       "Från vattenlevande fiskar med luftblåsa"],
  correct:0},
 
 {cat:"Ryggradsdjurens utveckling", mode:"mc",
@@ -770,13 +770,13 @@ const BANK = [
 {cat:"Människans utveckling", mode:"mc",
  q:"Vad kunde Homo erectus som Homo habilis inte kunde?",
  opts:["Använda eld för att laga mat och skrämma rovdjur",
-       "Tillverka stenredskap för att skära och hugga",
-       "Gå upprätt på två ben på savannen",
-       "Odla grödor och bilda organiserade samhällen"],
+       "Kommunicera med ett fullt utvecklat talat språk",
+       "Bygga permanenta hus och bilda organiserade städer",
+       "Odla grödor och domesticera djur"],
  correct:0},
 
 {cat:"Människans utveckling", mode:"mc",
- q:"Vad är den viktigaste fördelen med att gå upprätt på två ben, enligt sammanfattningen?",
+ q:"Vad är en fördel med att gå upprätt på två ben?",
  opts:["Det sparar energi och frigör händerna så att de kan användas till annat",
        "Det gör att man springer snabbare och lättare undkommer rovdjur",
        "Det ger bättre balans och smidighet vid klättring i träd",
@@ -838,17 +838,265 @@ const BANK = [
  q:"Alla nu levande människor tillhör arten Homo sapiens.", correct:true},
 
 {cat:"Människans utveckling", mode:"mc",
- q:"Vilka tre människoarter fanns före Homo sapiens?",
+ q:"Vilka tre människoarter nämns i det här avsnittet som föregångare till Homo sapiens?",
  opts:["Homo habilis, Homo erectus och neandertalmänniskan",
-       "Homo habilis, Homo erectus och Homo floresiensis",
+       "Homo habilis, Homo erectus och Homo heidelbergensis",
        "Australopithecus, Homo habilis och Homo heidelbergensis",
-       "Neandertalmänniskan, Homo floresiensis och Homo denisova"],
+       "Neandertalmänniskan, Homo denisova och Australopithecus"],
  correct:0},
 
 {cat:"Människans utveckling", mode:"fill",
  q:"Vad kallas den grupp av däggdjur som inkluderar halvapor, spökdjur, apor och människan?",
  correct:"primater",
  accepted:["primat","primate"]},
+
+// ── NYA FRÅGOR — Livets förutsättningar ──────────────────────
+// Mål: Förklara vad som är gemensamt för allt levande
+// Mål: Beskriva likheter och skillnader mellan olika celler
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vilka av dessa egenskaper delar ALLA organismer — från bakterier till blåvalar?",
+ opts:["De består av celler, behöver energi och kan fortplanta sig",
+       "De utför fotosyntes, rör sig och har cellkärna",
+       "De är flercelliga, lever i vatten och andas syre",
+       "De har cellvägg, är encelliga och saknar cellkärna"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad är skillnaden mellan en djurcell och en växtcell?",
+ opts:["Växtcellen har cellvägg och klorofyllkorn, djurcellen saknar båda",
+       "Djurcellen har cellvägg och klorofyllkorn, växtcellen saknar båda",
+       "Växtcellen saknar cellmembran, djurcellen har det",
+       "Djurcellen har cellkärna, växtcellen saknar den"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad är skillnaden mellan en svampcell och en djurcell?",
+ opts:["Svampcellen har cellvägg, djurcellen saknar cellvägg",
+       "Djurcellen har cellvägg, svampcellen saknar den",
+       "Svampcellen har klorofyll, djurcellen saknar det",
+       "Djurcellen har cellkärna, svampcellen saknar den"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"mc",
+ q:"Vad menas med att en organism tar upp ämnen från omgivningen?",
+ opts:["Den hämtar in ämnen den behöver, som vatten, näring och syre",
+       "Den delar sig och bildar nya celler med hjälp av solljus",
+       "Den avger gaser till luften och ämnen till marken",
+       "Den reagerar på ljus och rör sina blad mot solen"],
+ correct:0},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"Växter, djur, svampar och bakterier har alla gemensamt att de behöver energi för att leva.", correct:true},
+
+{cat:"Livets förutsättningar", mode:"tf",
+ q:"En svampcell och en djurcell är identiska till sin uppbyggnad.", correct:false,
+ exp:"Svampcellen har cellvägg, vilket djurcellen saknar."},
+
+{cat:"Livets förutsättningar", mode:"fill",
+ q:"Hur kallas en organism som består av en enda cell, till exempel en bakterie eller amöba?",
+ correct:"encellig",
+ accepted:["encelliga","encellinga"]},
+
+// ── NYA FRÅGOR — Livets indelning ────────────────────────────
+// Mål: Förklara det biologiska artbegreppet
+// Mål: Förklara hur organismer namnges och grupperas
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vilket påstående stämmer bäst om det biologiska artbegreppet?",
+ opts:["Individer av samma art kan få fertil avkomma tillsammans",
+       "Individer av samma art ser alltid identiska ut",
+       "Individer av samma art lever alltid i exakt samma miljö",
+       "Individer av samma art har alltid exakt samma DNA"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Vilken ordning stämmer, från den bredaste till den smalaste grupperingen?",
+ opts:["Domän → rike → familj → släkte → art",
+       "Art → släkte → familj → rike → domän",
+       "Familj → domän → rike → art → släkte",
+       "Rike → art → domän → familj → släkte"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Varför gav Carl von Linné växter och djur latinska namn?",
+ opts:["Latin var dåtidens gemensamma vetenskapliga språk i Europa",
+       "Latin var lättast att uttala för de flesta europeiska folk",
+       "Det var obligatoriskt enligt kyrkan att använda latin",
+       "Latin är det äldsta skriftspråket och lättast att lära sig"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"mc",
+ q:"Kråka och korp tillhör båda familjen kråkfåglar. Vad berättar det om dem?",
+ opts:["De är nära besläktade med varandra",
+       "De är exakt samma art med olika namn",
+       "De kan aldrig korsas och få ungar",
+       "De lever alltid i exakt samma miljö"],
+ correct:0},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"DNA-analys är en metod som biologer idag använder för att undersöka hur nära släkt organismer är.", correct:true},
+
+{cat:"Livets indelning", mode:"tf",
+ q:"Alla organismer som ser lika ut tillhör samma art.", correct:false,
+ exp:"Utseende räcker inte — avgörande är om de kan få fertil avkomma tillsammans."},
+
+{cat:"Livets indelning", mode:"fill",
+ q:"Vad kallas den taxonomiska nivå som ligger direkt ovanför arten och samlar nära besläktade arter?",
+ correct:"släkte",
+ accepted:["slakte","genus"]},
+
+// ── NYA FRÅGOR — Livets utveckling ───────────────────────────
+// Mål: Beskriva teorier om livets uppkomst
+// Mål: Förklara hur jordens syrehaltiga atmosfär utvecklades
+// Mål: Beskriva livets utveckling från encelliga till flercelliga
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Varför är cyanobakteriernas fotosyntes viktig för djurlivets uppkomst?",
+ opts:["Den frigjorde syre som skapade förutsättningar för syreberoende organismer",
+       "Den bildade de första landväxterna som djuren kunde äta",
+       "Den skapade det varma klimat som behövdes för att djur skulle uppstå",
+       "Den producerade koldioxid som skyddade livet från UV-strålning"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad hände med livet under snöbollsjorden?",
+ opts:["Nästan allt liv slogs ut, men vissa organismer överlevde",
+       "Livet blomstrade eftersom kylan skyddade mot UV-strålning",
+       "Alla organismer dog ut och livet fick börja om från noll",
+       "Livet spred sig från havet upp på land för första gången"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"I vilken ordning skedde dessa händelser i livets historia?",
+ opts:["Bakterier → cyanobakterier → flercelliga organismer → kambriska explosionen",
+       "Kambriska explosionen → cyanobakterier → bakterier → flercelliga organismer",
+       "Flercelliga organismer → bakterier → kambriska explosionen → cyanobakterier",
+       "Cyanobakterier → kambriska explosionen → bakterier → flercelliga organismer"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad är en teori om varför livet uppstod i haven och inte i atmosfären?",
+ opts:["Havet skyddade mot den starka UV-strålning som nådde jordytan",
+       "Atmosfären innehöll för mycket syre för att liv skulle kunna uppstå",
+       "Havet var kallare och liv behöver kyla för att uppstå",
+       "Atmosfären bestod enbart av kväve utan några kemiska reaktioner"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"De första landväxterna utvecklades från grönalger.", correct:true},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"Livet på land uppstod innan livet i havet.", correct:false,
+ exp:"Livet uppstod i haven och tog sig upp på land först för ca 500 miljoner år sedan."},
+
+{cat:"Livets utveckling", mode:"fill",
+ q:"Vad kallas organismer som består av flera samarbetande celler, till exempel djur, växter och de flesta svampar?",
+ correct:"flercellig",
+ accepted:["flercelliga","flercelligt"]},
+
+// ── NYA FRÅGOR — Ryggradsdjurens utveckling ──────────────────
+// Mål: Beskriva ryggradsdjurens utveckling från fiskar till fåglar och däggdjur
+// Mål: Förklara hur olika ryggradsdjur anpassats till vatten, land och luft
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilken anpassning är mest avgörande för att ett djur ska kunna leva helt på land utan tillgång till vatten?",
+ opts:["Inre befruktning och ägg med skal som skyddar fostret",
+       "Skelett av brosk som ger rörlighet på ojämn mark",
+       "Förmågan att andas med gälar vid behov",
+       "Tunn fuktig hud som tar upp fukt från luften"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilken egenskap delar fåglar och däggdjur men inte kräldjur och groddjur?",
+ opts:["De är jämnvarma och kan reglera sin kroppstemperatur",
+       "De härstammar från dinosaurier",
+       "De andas med gälar under delar av livet",
+       "De är alltid landlevande och kan inte simma"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Hur är fiskar anpassade till livet i vatten?",
+ opts:["De andas med gälar och har fenor för att röra sig i vattnet",
+       "De andas med lungor och har fjäll som håller dem varma",
+       "De är jämnvarma och har ett skyddande skal runt kroppen",
+       "De lägger ägg med skal och har vattentät hud"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Varför kunde de första groddjuren leva på land trots att de är beroende av vatten?",
+ opts:["De hade ett inre skelett och ben som bar upp kroppen på land",
+       "De hade inre befruktning och behövde inte vatten för förökning",
+       "De hade tjock torr hud som skyddade mot uttorkning",
+       "De hade ägg med skal som tålde torr luft"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilken grupp av ryggradsdjur var de första som kunde föröka sig helt oberoende av vatten?",
+ opts:["Kräldjuren",
+       "Groddjuren",
+       "De första fiskarna",
+       "De tidiga däggdjuren"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Fåglarna är jämnvarma och kan reglera sin kroppstemperatur.", correct:true},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Groddjur kan leva hela livet utan vatten eftersom de andas med lungor.", correct:false,
+ exp:"Groddjur har tunn hud och behöver vatten för sin förökning — de är beroende av vatten."},
+
+{cat:"Ryggradsdjurens utveckling", mode:"fill",
+ q:"Vad kallas djurgruppen som var de första ryggradsdjuren på land och som fortfarande är beroende av vatten?",
+ correct:"groddjur",
+ accepted:["amfibier","amfibierna","groddjuren"]},
+
+// ── NYA FRÅGOR — Människans utveckling ───────────────────────
+// Mål: Beskriva människans utveckling från förmänniskor till nutida människor
+// Mål: Förklara hur människan anpassats till livet på savannen
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Varför var det en fördel för förmänniskorna att gå på två ben?",
+ opts:["Det var en anpassning till livet på den öppna savannen",
+       "Det berodde på att skogen hade tagit slut i Afrika",
+       "Det var ett tecken på att de hade en stor och komplex hjärna",
+       "Det var nödvändigt för att kunna simma och fiska i floderna"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad är det som gjort att Homo sapiens har kunnat sprida sig över hela världen?",
+ opts:["En stor hjärna, talat språk och förmåga att föra vidare kunskaper",
+       "Förmågan att springa snabbare än alla andra djur",
+       "Immuniteten mot alla sjukdomar i olika klimat",
+       "Förmågan att leva utan mat i långa perioder"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Varför är mörk hudfärg vanligare hos människor som bott nära ekvatorn?",
+ opts:["Mörk hud skyddar bättre mot stark UV-strålning från solen",
+       "Mörk hud absorberar mer värme och håller kroppen varm",
+       "Mörk hud gör det lättare att gömma sig för rovdjur på savannen",
+       "Mörk hud producerar mer D-vitamin i solrik miljö"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad kan man säga om förhållandet mellan alla nu levande människor?",
+ opts:["Vi tillhör alla samma art och har en gemensam förfader i Afrika",
+       "Vi tillhör olika underarter beroende på var i världen vi lever",
+       "Vi härstammar från olika förmänniskor i olika delar av världen",
+       "Vi delar DNA med neandertalmänniskan men inte med varandra"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Homo sapiens spred sig från Afrika till Europa för ca 40 000 år sedan.", correct:true},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Ljus hudfärg är en anpassning till miljöer med lite solljus eftersom huden då lättare tar upp D-vitamin.", correct:true},
+
+{cat:"Människans utveckling", mode:"fill",
+ q:"Vad kallas de människor som levde före vårt eget släkte Homo, och som gick på två ben för ca 5 miljoner år sedan?",
+ correct:"förmänniskor",
+ accepted:["formanskor","förmänniska","formänniskor"]},
 
 ];
 
