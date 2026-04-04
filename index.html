@@ -66,7 +66,9 @@ h1.logo{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1.5rem;l
 .opt-btn:hover:not(:disabled){background:var(--bg3);border-color:var(--border2);}
 .opt-btn.correct{background:var(--xpl);border-color:var(--xp);color:var(--xpd);font-weight:500;}
 .opt-btn.wrong{background:var(--wrongl);border-color:var(--wrong);color:#7a1212;}
+.opt-btn.selected-answer{border-color:var(--lvl);background:var(--lvll);color:var(--lvld);font-weight:600;box-shadow:0 0 0 2px var(--lvl);}
 .opt-btn:disabled{cursor:default;}
+.tf-btn.selected-answer{border-color:var(--lvl);background:var(--lvll);color:var(--lvld);font-weight:600;box-shadow:0 0 0 2px var(--lvl);}
 @media(prefers-color-scheme:dark){.opt-btn.wrong{color:#fca5a5;}}
 
 /* ── fill ── */
@@ -275,11 +277,12 @@ h1.logo{font-size:12px;font-weight:500;color:var(--text2);margin-bottom:1.5rem;l
   <!-- ══ SUMMARY ══ -->
   <div id="summary">
     <div id="sum-header">
+      <div id="sum-medal" style="font-size:52px;margin-bottom:8px;line-height:1;"></div>
       <h2 id="sum-title"></h2>
       <p id="sum-desc"></p>
     </div>
     <div id="sum-grid">
-      <div class="sum-stat"><div class="val" id="s-xp">0</div><div class="lbl">XP</div></div>
+      <div class="sum-stat"><div class="val" id="s-xp">0</div><div class="lbl">Totalt XP</div></div>
       <div class="sum-stat"><div class="val" id="s-correct">0</div><div class="lbl">Rätt</div></div>
       <div class="sum-stat"><div class="val" id="s-streak">0</div><div class="lbl">Bästa streak</div></div>
       <div class="sum-stat"><div class="val" id="s-pct">0%</div><div class="lbl">Träffsäkerhet</div></div>
@@ -544,7 +547,7 @@ const BANK = [
  accepted:["hybred","hybrit"]},
 
 {cat:"Livets indelning", mode:"fill",
- q:"Vad kallas en organism som kan fortplanta sig och få avkomma som i sin tur kan föröka sig?",
+ q:"Hur kallas en organism som kan föröka sig och vars avkomma i sin tur kan föröka sig?",
  correct:"fertil",
  accepted:["fertill"]},
 
@@ -764,7 +767,7 @@ const BANK = [
 // According to the summary: "Schimpansen är människans närmaste nu levande släkting"
 // so this question is fine per the source material.
 {cat:"Människans utveckling", mode:"mc",
- q:"I vilket nu levande djurs DNA liknar människans DNA mest?",
+ q:"Vilket nu levande djurs DNA liknar människans mest?",
  opts:["Schimpansens",
        "Gorillans",
        "Orangutangens",
@@ -772,8 +775,8 @@ const BANK = [
  correct:0},
 
 {cat:"Människans utveckling", mode:"mc",
- q:"Vad kunde Homo habilis som tidigare människoarter inte kunde?",
- opts:["Använda enkla stenredskap",
+ q:"Vad är Homo habilis särskilt känd för?",
+ opts:["Att använda enkla stenredskap",
        "Använda eld för att laga mat",
        "Tala ett fullt artikulerat språk",
        "Vandra långa sträckor ut ur Afrika"],
@@ -792,7 +795,7 @@ const BANK = [
  opts:["Det sparar energi och frigör händerna så att de kan användas till annat",
        "Det gör att man springer snabbare och lättare undkommer rovdjur",
        "Det ger bättre balans och smidighet vid klättring i träd",
-       "Det minskar risken för solsting eftersom mindre av kroppen exponeras mot solen"],
+       "Det förbättrar synen eftersom ögonen sitter högt upp och kan se längre"],
  correct:0},
 
 {cat:"Människans utveckling", mode:"mc",
@@ -850,7 +853,7 @@ const BANK = [
  q:"Alla nu levande människor tillhör arten Homo sapiens.", correct:true},
 
 {cat:"Människans utveckling", mode:"mc",
- q:"Vilka tre människoarter nämns i det här avsnittet som föregångare till Homo sapiens?",
+ q:"Vilka av dessa är alla verkliga människoarter som levde före eller samtidigt med Homo sapiens?",
  opts:["Homo habilis, Homo erectus och neandertalmänniskan",
        "Homo habilis, Homo erectus och Homo heidelbergensis",
        "Australopithecus, Homo habilis och Homo heidelbergensis",
@@ -942,12 +945,13 @@ const BANK = [
  q:"Kråka och korp tillhör båda familjen kråkfåglar. Vad berättar det om dem?",
  opts:["De är nära besläktade med varandra",
        "De är exakt samma art med olika namn",
-       "De kan aldrig korsas och få ungar",
-       "De lever alltid i exakt samma miljö"],
+       "De tillhör exakt samma art men har olika namn",
+       "De lever alltid i exakt samma geografiska område"],
  correct:0},
 
 {cat:"Livets indelning", mode:"tf",
- q:"DNA-analys är en metod som biologer idag använder för att undersöka hur nära släkt organismer är.", correct:true},
+ q:"Alla organismer som kan korsa sig och få ungar tillhör automatiskt samma art.", correct:false,
+ exp:"Avgörande är att avkomman är fertil — häst och åsna kan få ungar (mulan) men räknas som olika arter."},
 
 {cat:"Livets indelning", mode:"tf",
  q:"Alla organismer som ser lika ut tillhör samma art.", correct:false,
@@ -964,11 +968,11 @@ const BANK = [
 // Mål: Beskriva livets utveckling från encelliga till flercelliga
 
 {cat:"Livets utveckling", mode:"mc",
- q:"Varför är cyanobakteriernas fotosyntes viktig för djurlivets uppkomst?",
- opts:["Den frigjorde syre som skapade förutsättningar för syreberoende organismer",
-       "Den bildade de första landväxterna som djuren kunde äta",
-       "Den skapade det varma klimat som behövdes för att djur skulle uppstå",
-       "Den producerade koldioxid som skyddade livet från UV-strålning"],
+ q:"Vilken roll spelade cyanobakterierna för livet i haven?",
+ opts:["De syresatte haven och skapade förutsättningar för flercelligt djurliv",
+       "De bildade de första flercelliga algerna direkt",
+       "De skapade värme i haven som behövdes för liv",
+       "De producerade näring som alla djur i havet levde av"],
  correct:0},
 
 {cat:"Livets utveckling", mode:"mc",
@@ -1032,7 +1036,7 @@ const BANK = [
  opts:["De andas med gälar och har fenor för att röra sig i vattnet",
        "De andas med lungor och har fjäll som håller dem varma",
        "De är jämnvarma och har ett skyddande skal runt kroppen",
-       "De lägger ägg med skal och har vattentät hud"],
+       "De är jämnvarma och kan reglera sin temperatur i kallt vatten"],
  correct:0},
 
 {cat:"Ryggradsdjurens utveckling", mode:"mc",
@@ -1110,8 +1114,80 @@ const BANK = [
  correct:"förmänniskor",
  accepted:["formanskor","förmänniska","formänniskor"]},
 
-];
+// ── NYA FRÅGOR — Ryggradsdjurens anpassningar till luft ──────
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vilka egenskaper gör fåglar anpassade till ett liv i luften?",
+ opts:["Fjädrar för flygning och jämnvarm kropp som håller energin uppe",
+       "Gälar för andning och fenor för manövrering i luften",
+       "Skal runt ägg och kallblodig ämnesomsättning",
+       "Tunn fuktig hud och yttre befruktning nära vattnet"],
+ correct:0},
 
+{cat:"Ryggradsdjurens utveckling", mode:"mc",
+ q:"Vad skiljer fåglar från kräldjur när det gäller kroppstemperatur?",
+ opts:["Fåglar är jämnvarma och reglerar sin kroppstemperatur, kräldjur är kallblodiga",
+       "Kräldjur är jämnvarma och fåglar är kallblodiga",
+       "Både fåglar och kräldjur är jämnvarma",
+       "Varken fåglar eller kräldjur kan reglera sin kroppstemperatur"],
+ correct:0},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Däggdjur föder levande ungar och ammar dem med mjölk.", correct:true},
+
+{cat:"Ryggradsdjurens utveckling", mode:"tf",
+ q:"Kräldjur och groddjur är båda jämnvarma djur.", correct:false,
+ exp:"Varken kräldjur eller groddjur är jämnvarma — de är kallblodiga och reglerar inte sin kroppstemperatur."},
+
+// ── NYA FRÅGOR — Savannanpassning och hjärna ─────────────────
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad möjliggör att Homo sapiens kan föra vidare kunskaper från en generation till nästa?",
+ opts:["Det talade språket",
+       "Tillverkning av stenredskap",
+       "Tvåbent gång",
+       "Anpassad hudfärg"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Vad utmärker Homo sapiens hjärna jämfört med tidigare människoarter?",
+ opts:["Den är stor och veckad, vilket ger bättre minne och förmåga att tänka",
+       "Den är mindre men mer effektiv och energisnål",
+       "Den har ett extra lager som styr tvåbent gång",
+       "Den liknar schimpansens hjärna men är lite större"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"mc",
+ q:"Hur anpassade sig Homo sapiens till att sprida sig från Afrika till kalla klimat i Europa?",
+ opts:["Genom kultur — kläder, eld och kunskaper förda vidare via språket",
+       "Genom att kroppen genetiskt snabbt anpassade sig till kyla",
+       "Genom att äta mer och lagra fett som isolering",
+       "Genom att korsa sig med köldanpassade djurarter"],
+ correct:0},
+
+{cat:"Människans utveckling", mode:"tf",
+ q:"Homo sapiens förmåga att kommunicera med talat språk är en viktig orsak till artens framgång.", correct:true},
+
+// ── NYA FRÅGOR — Livets uppkomst, kemiska förutsättningar ────
+{cat:"Livets utveckling", mode:"mc",
+ q:"Vad behövdes för att liv skulle kunna uppstå?",
+ opts:["Flytande vatten, rätt kemiska ämnen och skydd mot UV-strålning",
+       "Syre i atmosfären, torrmark och solljus",
+       "Cellkärnor, klorofyll och mineraler från landytan",
+       "Hög temperatur, lava och koldioxid från vulkaner"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"mc",
+ q:"Hur länge sedan uppstod det första livet på jorden?",
+ opts:["För minst 3,5 miljarder år sedan",
+       "För ungefär 540 miljoner år sedan",
+       "För ungefär 1 miljard år sedan",
+       "För ungefär 4,5 miljarder år sedan"],
+ correct:0},
+
+{cat:"Livets utveckling", mode:"tf",
+ q:"De första encelliga organismerna behövde syre för att överleva.", correct:false,
+ exp:"De första organismerna var bakterier som levde utan syre — det var cyanobakteriernas fotosyntes som senare skapade syre i atmosfären."},
+
+];
 // ══════════════════════════════════════════════════════════════
 // KONSTANTER & STATE
 // ══════════════════════════════════════════════════════════════
@@ -1127,7 +1203,7 @@ const XP_PER_LVL = 50;
 const STORAGE_KEY = "bio7_data";
 
 let selCat = "all", selN = 20;
-let queue = [], wrongBuf = [];
+let queue = [], spacingBuf = [], recentKeys = [];
 let uniqueAnswered = 0, completedCount = 0, correct = 0, xp = 0, streak = 0, bestStreak = 0;
 let current = null, currentCorrect = null;
 let catStats = {}; // {cat: {q,c}}
@@ -1148,7 +1224,7 @@ function loadData(){
     let d = localStorage.getItem(STORAGE_KEY);
     if(d) return JSON.parse(d);
   } catch(e){}
-  return { history:[], adaptive:{} };
+  return { history:[], adaptive:{}, totalXP:0 };
 }
 function saveData(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(persist)); } catch(e){}
@@ -1187,6 +1263,7 @@ function renderStartHistory(){
 function clearHistory(){
   persist.history = [];
   persist.adaptive = {};
+  persist.totalXP = 0;
   saveData();
   renderStartHistory();
 }
@@ -1217,7 +1294,7 @@ function startGame(){
   if(selCat === "all") deduped = interleave(deduped);
 
   queue = deduped.slice(0, selN).map(item=>({item}));
-  wrongBuf = []; catStats = {}; selfRatings = {};
+  wrongBuf = undefined; catStats = {}; selfRatings = {};
   uniqueAnswered = 0; completedCount = 0; correct = 0; xp = 0; streak = 0; bestStreak = 0;
   answeredKeys = new Set(); waitingForRate = false; currentIsFirst = true;
   spacingBuf = []; recentKeys = [];
@@ -1245,26 +1322,23 @@ function interleave(arr){
 // QUESTION FLOW
 // ══════════════════════════════════════════════════════════════
 
-// spacingBuf holds questions to revisit, each with a 'delay' countdown
-// (number of other questions to show before this one reappears)
-let spacingBuf = []; // [{item, delay}]
-let recentKeys = []; // last N question keys shown, to enforce spacing
-
 function showNext(){
   if(waitingForRate) return;
 
-  // Decrement delays and collect any that are ready
+  // Session complete when N unique questions have been fully answered and rated
+  if(completedCount >= selN){ showSummary(); return; }
+
+  // Decrement delays on all spacing items
   spacingBuf.forEach(e=>e.delay--);
   let ready = spacingBuf.filter(e=>e.delay<=0);
   spacingBuf = spacingBuf.filter(e=>e.delay>0);
 
   let entry;
-  // Pick source: ready spacing items, or main queue
+  // Prefer spacing items that are ready (wrong/unsure answers to revisit),
+  // but only if there are still new questions left too — mix them in.
   if(ready.length > 0 && (queue.length === 0 || Math.random() < 0.5)){
-    // pick the one that's been waiting longest (most negative delay)
     ready.sort((a,b)=>a.delay-b.delay);
     entry = ready.shift();
-    // put any leftover ready ones back with a small extra delay
     ready.forEach(e=>{ e.delay=1; spacingBuf.push(e); });
   } else if(queue.length > 0){
     entry = queue.shift();
@@ -1273,11 +1347,11 @@ function showNext(){
     entry = ready.shift();
     ready.forEach(e=>{ e.delay=1; spacingBuf.push(e); });
   } else if(spacingBuf.length > 0){
-    // Force-advance all delays
     spacingBuf.forEach(e=>e.delay=0);
     spacingBuf.sort((a,b)=>a.delay-b.delay);
     entry = spacingBuf.shift();
   } else {
+    // No more questions at all — end session
     showSummary(); return;
   }
 
@@ -1287,7 +1361,7 @@ function showNext(){
   if(recentKeys.length > 8) recentKeys.shift();
 
   currentIsFirst = !answeredKeys.has(k);
-  if(currentIsFirst) {
+  if(currentIsFirst){
     answeredKeys.add(k);
     uniqueAnswered++;
     catStats[current.cat] = catStats[current.cat]||{q:0,c:0};
@@ -1350,42 +1424,50 @@ function renderQ(){
 // New flow: answer → disable inputs → show self-rating →
 //           selfRate() reveals result → auto-advance after short delay
 // ══════════════════════════════════════════════════════════════
+// ANSWER HANDLERS
+// Flow: click answer → self-rating appears → can still change answer
+//       → click self-rating → lock answer → reveal result → auto-advance
+// ══════════════════════════════════════════════════════════════
 let pendingIsOk = false, pendingCorrectDisplay = '', pendingCorrectText = '';
-
 let clickedBtn = null;
+
 function answerMC(isOk, btn, correctText){
-  // Disable all options immediately so user can't change answer
-  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
-  clickedBtn = btn; // remember which button was clicked
+  // Always allow changing answer while self-rating is showing
+  document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected-answer'));
+  btn.classList.add('selected-answer');
+  clickedBtn = btn;
   pendingIsOk = isOk;
   pendingCorrectDisplay = correctText;
   pendingCorrectText = correctText;
-  showSelfRate();
+  // Show self-rate the first time an option is picked
+  document.getElementById('self-rate').style.display = 'block';
 }
 
 function answerTF(answer){
   let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
-  tT.disabled=true; tF.disabled=true;
+  tT.classList.remove('selected-answer');
+  tF.classList.remove('selected-answer');
+  if(answer===true) tT.classList.add('selected-answer');
+  else tF.classList.add('selected-answer');
   pendingIsOk = answer === currentCorrect;
   pendingCorrectDisplay = current.exp || (currentCorrect ? 'Sant.' : 'Falskt.');
   pendingCorrectText = '';
-  showSelfRate();
+  document.getElementById('self-rate').style.display = 'block';
 }
 
 function submitFill(){
+  // Fill: lock the input on first submit, but allow editing if self-rate not yet clicked
+  if(waitingForRate) return; // locked after selfRate commit
   let inp = document.getElementById('fill-input');
   let val = inp.value.trim(); if(!val) return;
-  inp.disabled = true;
   pendingIsOk = checkFill(val, current);
   pendingCorrectDisplay = current.correct;
   pendingCorrectText = '';
-  showSelfRate();
+  document.getElementById('self-rate').style.display = 'block';
 }
 
 function showSelfRate(){
-  // Show self-rating BEFORE revealing if answer was right
   document.getElementById('self-rate').style.display = 'block';
-  waitingForRate = true;
 }
 
 // Tolerant fill check: normalise + accepted forms + edit distance + Swedish morphology
@@ -1437,7 +1519,6 @@ function editDist(a,b){
 }
 
 function handle(isOk, correctDisplay){
-  // Called AFTER self-rating — now reveal the result
   let cat = current.cat;
   let fb = document.getElementById('feedback');
   let card = document.getElementById('card');
@@ -1447,8 +1528,9 @@ function handle(isOk, correctDisplay){
     if(currentIsFirst) { correct++; if(catStats[cat]) catStats[cat].c++; }
     streak++; if(streak>bestStreak) bestStreak=streak;
     let gain = 10 + Math.min(streak-1,5)*2; xp += gain;
+    persist.totalXP = (persist.totalXP||0) + gain;
+    saveData();
     card.classList.add('correct-flash');
-    // Reveal correct highlight on MC
     if(pendingCorrectText){
       document.querySelectorAll('.opt-btn').forEach(b=>{
         if(b.textContent === pendingCorrectText) b.classList.add('correct');
@@ -1461,11 +1543,13 @@ function handle(isOk, correctDisplay){
     fb.textContent = streak>=3 ? `Rätt! ${streak} i rad! +${gain} XP` : `Rätt! +${gain} XP`;
     popXP(gain);
     if(streak>=3 && streak%3===0) popStreak(`🔥 ${streak} i rad!`);
+    // Auto-advance after short pause on correct answer
+    updateHUD();
+    setTimeout(()=>{ waitingForRate=false; showNext(); }, 1400);
   } else {
     streak = 0;
-    card.classList.add('shake','wrong-flash');
-    setTimeout(()=>card.classList.remove('shake'),400);
-    // Reveal correct on MC, highlight wrong button
+    card.classList.add('wrong-flash');
+    // Reveal correct answer on MC
     if(pendingCorrectText){
       document.querySelectorAll('.opt-btn').forEach(b=>{
         if(b.textContent === pendingCorrectText) b.classList.add('correct');
@@ -1479,15 +1563,34 @@ function handle(isOk, correctDisplay){
     let disp = String(correctDisplay);
     if(disp.length > 90) disp = disp.slice(0,90)+'…';
     fb.textContent = `Rätt svar: ${disp}`;
-    // Re-queue with spacing: show 4 other questions before this one returns
-    spacingBuf.push({item:current, delay:4});
+    // Only re-queue on first attempt — retries don't cycle back again
+    if(currentIsFirst) spacingBuf.push({item:current, delay:4});
+    // Show next button — correct answer stays visible until user proceeds
+    document.getElementById('next-btn').style.display = 'block';
+    updateHUD();
+    // waitingForRate stays true until user clicks next
   }
-  updateHUD();
-  // Auto-advance after a short pause so user can see the result
-  setTimeout(()=>showNext(), 1400);
+}
+
+function nextQ(){
+  waitingForRate = false;
+  showNext();
 }
 
 function selfRate(rating){
+  // Lock everything — no more answer changes after this
+  waitingForRate = true;
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  let tT=document.getElementById('tf-true'), tF=document.getElementById('tf-false');
+  tT.disabled=true; tF.disabled=true;
+  let inp=document.getElementById('fill-input'); inp.disabled=true;
+
+  // Recalculate pendingIsOk from fill in case user edited text after first submit
+  if(current.mode==='fill' && !inp.disabled){
+    let val=inp.value.trim();
+    if(val) pendingIsOk=checkFill(val,current);
+  }
+
   // Record in adaptive data
   let k = qKey(current);
   if(!persist.adaptive[k]) persist.adaptive[k] = {};
@@ -1495,26 +1598,18 @@ function selfRate(rating){
   saveData();
   selfRatings[k] = rating;
   document.getElementById('self-rate').style.display = 'none';
-  waitingForRate = false;
 
-  // Queue for spaced repetition based on self-rating (only if answered correctly —
-  // wrong answers are already re-queued in handle())
-  if(pendingIsOk){
-    if(rating === 'hard'){
-      // Felt unsure even though correct: revisit after ~3 questions
-      spacingBuf.push({item:current, delay:3});
-    } else if(rating === 'unsure'){
-      // Ganska säker: revisit after ~5 questions
-      spacingBuf.push({item:current, delay:5});
-    }
+  // Queue for spaced repetition based on self-rating.
+  // Only applies to first-time correct answers — retried questions don't get re-queued.
+  if(pendingIsOk && currentIsFirst){
+    if(rating === 'hard')        spacingBuf.push({item:current, delay:3});
+    else if(rating === 'unsure') spacingBuf.push({item:current, delay:5});
     // 'easy' → no re-queue
   }
 
   // Now reveal result
   handle(pendingIsOk, pendingCorrectDisplay);
 }
-
-function nextQ(){ if(!waitingForRate) showNext(); }
 
 // ══════════════════════════════════════════════════════════════
 // HUD
@@ -1527,12 +1622,14 @@ function updateHUD(){
   let pct = selN > 0 ? Math.round((done/selN)*100) : 0;
   document.getElementById('q-bar').style.width = pct+'%';
   document.getElementById('q-counter').textContent = `${done} / ${selN}`;
-  let lv = Math.floor(xp/XP_PER_LVL)+1;
+  // Level is based on total accumulated XP across all sessions
+  let totalXP = persist.totalXP || 0;
+  let lv = Math.floor(totalXP/XP_PER_LVL)+1;
   let nm = (LVL_NAMES[Math.min(lv-1,LVL_NAMES.length-1)]) + ' — Nivå ' + lv;
   document.getElementById('level-badge').textContent = nm;
-  let xpInLv = xp % XP_PER_LVL;
+  let xpInLv = totalXP % XP_PER_LVL;
   document.getElementById('xp-bar').style.width = (xpInLv/XP_PER_LVL*100)+'%';
-  document.getElementById('xp-label').textContent = xp+' / '+(Math.ceil((xp+1)/XP_PER_LVL)*XP_PER_LVL)+' XP';
+  document.getElementById('xp-label').textContent = totalXP+' / '+(Math.floor(totalXP/XP_PER_LVL)+1)*XP_PER_LVL+' XP';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1562,11 +1659,17 @@ function showSummary(){
   let total = Math.max(completedCount, 1);
   let pct = Math.round((correct/total)*100);
 
-  document.getElementById('sum-title').textContent =
-    pct>=90?'Suveränt! 🏆':pct>=70?'Bra jobbat!':pct>=50?'Nästan där!':'Fortsätt träna!';
+  // Medal and title based on accuracy
+  let medal = '', title = '';
+  if(pct >= 90)      { medal = '\uD83E\uDD47'; title = 'Suveränt!'; }
+  else if(pct >= 70) { medal = '\uD83E\uDD48'; title = 'Bra jobbat!'; }
+  else if(pct >= 50) { medal = '\uD83E\uDD49'; title = 'Nästan där!'; }
+  else               { medal = '';   title = 'Fortsätt träna!'; }
+  document.getElementById('sum-medal').textContent = medal;
+  document.getElementById('sum-title').textContent = title;
   document.getElementById('sum-desc').textContent =
     `Du svarade på ${total} frågor och fick ${correct} rätt.`;
-  document.getElementById('s-xp').textContent = xp;
+  document.getElementById('s-xp').textContent = persist.totalXP || xp;
   document.getElementById('s-correct').textContent = correct;
   document.getElementById('s-streak').textContent = bestStreak;
   document.getElementById('s-pct').textContent = pct+'%';
@@ -1813,11 +1916,13 @@ function shuffle(a){
 
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'){
-    if(waitingForRate) return;
     let next=document.getElementById('next-btn');
     let fill=document.getElementById('fill-input');
-    if(next.style.display==='block') nextQ();
-    else if(document.getElementById('fill-row').style.display!=='none' && !fill.disabled) submitFill();
+    // Enter on next-btn (wrong answer shown) — always allowed
+    if(next.style.display==='block'){ nextQ(); return; }
+    // Enter on fill — only before selfRate is committed
+    if(!waitingForRate && document.getElementById('fill-row').style.display!=='none' && !fill.disabled)
+      submitFill();
   }
 });
 
